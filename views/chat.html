@@ -10,17 +10,40 @@
   <body>
 	<div class="container" ng-controller="chat">
 		<p><h1>Welcome Chat</h1><p>
-			<table class="table table-bordered">
-				<tr>
-					<td>IdChat API</td>
-					<td>Fullname</td>
-				<tr>
-				<tr ng-repeat='n in list'>
-					<td>{{n._id}}</td>
-					<td>{{n.first_name}} {{n.name}}</td>
-				<tr>
-			</table>
+			<div class="row">
+				<div class="col-md-3">
+					<table class="table table-bordered">
+						<tr class="success">
+							
+							<td>Fullname</td>
+							<td>Status</td>
+						<tr>
+						<tr ng-repeat='n in list'>
+							
+							<td>{{n.name}}</td>
+							<td>{{n.status}}</td>
+						<tr>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					<table class="table table-bordered">
+						<tr class="success">
+							
+							<td>Fullname</td>
+							
+						<tr>
+						<tr ng-repeat='n in shop'>
+							
+							<td>{{n.shop_name}}</td>
+							
+						<tr>
+					</table>
+				</div>
+			</div>
 
+			
 	</div>
   </body>
 </html>
@@ -28,6 +51,22 @@
 	angular.module('app', [])
 	.controller('chat', function($scope,$http) {
 		$scope.title = 'FFFF';
+		$http({
+		  method: 'POST',
+		  data:{id:'56e25471f0d71df75d8b4567'},
+		  url: '/chat/chatshop'
+		}).then(function successCallback(response) {
+
+			console.log(response)
+			$scope.shop = response.data
+
+
+
+		}, function errorCallback(response) {
+		    // called asynchronously if an error occurs
+		    // or server returns response with an error status.
+		});
+
 		$http({
 		  method: 'POST',
 		  data:{id:'56e25471f0d71df75d8b4567'},
@@ -41,6 +80,6 @@
 		    // called asynchronously if an error occurs
 		    // or server returns response with an error status.
 		});
-
+		
 	});
 </script>

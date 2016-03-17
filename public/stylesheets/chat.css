@@ -1,0 +1,405 @@
+/*
+chat-sidebar  แบ่งเป็นเซต  มี 3 เซต คือ
+1.เพื่อน
+2.กรุ๊ปแชท
+3.กิจกรรมร่วมกัน ร้าน - ยูสเซอร์ ที่ทำการติดต่อซื้อขายกันอยู่
+
+view port width > 1280  use widget
+view port width > 1281  > 1366  use fixed right width 70px
+view port width > 1366  use fixed right width 160px
+	
+*/
+html {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+  }
+#
+
+
+.chat-sidebar{
+        width: 180px;
+        position: fixed;
+        height: 100%;
+        right: 0px;
+        top: 0px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border: 1px solid rgba(29, 49, 91, .3);
+    }
+.sidebar-name{
+        padding-left: 5px;
+        padding-right: 5px;
+        margin-bottom: 4px;
+        font-size: 12px;
+    }
+.sidebar-name span{
+        padding-left: 5px;
+    }
+.sidebar-name a{
+        display: block;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+    }
+.sidebar-name:hover{
+        background-color:#e1e2e5;
+    }
+.sidebar-name img{
+        width: 32px;
+        height: 32px;
+        vertical-align:middle;
+        -webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+		border-radius: 3px;
+    }
+
+@media only screen and (min-width : 1367px) {
+	.chat-sidebar{
+        width: 158px;
+        position: fixed;
+        height: 100%;
+        right: 0px;
+        top: 0px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border: 1px solid rgba(29, 49, 91, .3);
+        background:#fff;
+    }
+}
+
+.chat-sidebar-sp{
+        width: 320px;
+        position: fixed;
+        height: 450px;
+        right: 20px;
+        bottom: 0px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        border:0;
+        background:#C41200;
+        border-radius: 3px 3px 0 0;
+        box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.5);
+    }
+/*
+.chat-sidebar-sp header {
+  background: transparent;
+  height:40px; top:0; left:0; position:absolute; width:100%;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: move;
+}
+.chat-sidebar-sp header:before,
+.chat-sidebar-sp header:after {
+  display: block;
+  content: '';
+  clear: both;
+}
+*/
+button.xtabs-min{position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.1); vertical-align: middle; border:0;}
+button.xtabs-min:hover{background:rgba(0,0,0,0.3);}
+button.xtabs-min:focus{outline: none;}
+.minsearch{
+    border:0; width:45px;
+    background:#C41200;
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.5);
+    position: fixed;bottom:0; right:20px;
+    text-align: center; padding:10px 15px; color:#fff;
+    cursor: pointer;
+    display:none;
+}
+.minsearch .labal{background:#000; position:absolute; bottom:45px; right:0px; font-size:12px; text-align: center; padding:5px 10px; color:#fff; border-radius: 15px 15px;}
+.minsearch .labal:empty{display:none;}
+.xtabs {
+  width: 100%;
+  float: none;
+  list-style: none;
+  position: relative;
+  text-align: left;
+  margin:0px; padding:0px;
+  margin-top:10px;
+}
+.xtabs li {
+  float: left;
+  display: block;
+}
+.xtabs li:first-child{padding-left:10px;}
+.xtabs input[type="radio"] {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+.xtabs label {
+  display: block;
+  padding: 5px 14px 7px 14px;
+  border-radius: 2px 2px 0 0;
+  font-size: 14px;
+  line-height:20px;
+  font-weight: normal;
+  background: rgba(0,0,0,0.1);
+  cursor: pointer;
+  position: relative;
+  top: 4px;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  color:#fff;
+}
+.xtabs label:hover {
+  background: rgba(0,0,0,0.3);
+  color:#fff;
+}
+.xtabs .tab-content {
+  z-index: 2;
+  display: none;
+  overflow: hidden;
+  width: 100%;
+  max-width:320px;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 0;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background: #fff;
+  height:376px;
+  overflow-y: scroll;
+}
+.xtabs [id^="tab"]:checked + label {
+  top: 0;
+  padding-top: 10px;
+  background: #ffffff;
+  color:#000;
+}
+.xtabs [id^="tab"]:checked ~ [id^="tab-content"] {
+  display: block;
+}
+
+.searchtab{background:#fff; border-top:1px solid #ddd; color:#444; font-size:13px; padding:4px 10px 4px 10px; height:34px; position: absolute; bottom:0; left:0;  width: 100%; display:block;}
+.searchtab:focus{outline: none;}
+
+[contentEditable=true]:empty:not(:focus):before{content:attr(data-placeholder);color:#ddd;}
+
+.xtabs .tab-content .thisismyfriend{margin:0px;padding:0px; list-style: none; position:relative;}
+.xtabs .tab-content .thisismyfriend li{border-top:1px solid #eee; border-right:1px solid #eee; display:block; padding:0px; margin:0px;}
+.xtabs .tab-content .thisismyfriend li:first-child{border-top:0;}
+.xtabs .tab-content .thisismyfriend li::after{content:''; display:table; clear:both;}
+.xtabs .tab-content .thisismyfriend li a{display:block; background:transparent; padding:10px;}
+.xtabs .tab-content .thisismyfriend li::after,.thisismyfriend li a::after{content:''; display:table; clear:both;}
+.xtabs .tab-content .thisismyfriend li a:hover{background:#f7f7f7;}
+.xtabs .tab-content .thisismyfriend li a .av{width:40px; height: 40px; float:left; margin-right:10px;}
+.xtabs .tab-content .thisismyfriend li a .av img{width:100%;display:block; border-radius: 3px 3px;}
+.xtabs .tab-content .thisismyfriend li a .fordetail{width:230px; float:left; min-height:40px; position:relative;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .hername{font-size:14px; color:#444;width:95%;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:20px;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state{height:20px; vertical-align: middle;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state span{margin-left:5px; color:#777; float:left; font-style: italic;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state i{margin-right:5px; color:#777; float:left; margin-top:5px;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state .mystate{width:10px; height:10px; margin-top:5px; border-radius: 5px 5px; background:#ccc; float:left;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state .mystate.iamoffline{background:#ccc;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state .mystate.iamonline{background:#06cf13;}
+.xtabs .tab-content .thisismyfriend li a .fordetail .online-state .mystate.iamalway{background:#f4d10a;}
+
+
+
+.xtabs .tab-content .thisismygroup{margin:0px;padding:0px; list-style: none; position:relative;}
+.xtabs .tab-content .thisismygroup li{border-top:1px solid #eee; border-right:1px solid #eee; display:block; padding:0px; margin:0px;}
+.xtabs .tab-content .thisismygroup li:first-child{border-top:0;}
+.xtabs .tab-content .thisismygroup li::after{content:''; display:table; clear:both;}
+.xtabs .tab-content .thisismygroup li a{display:block; background:transparent; padding:10px;}
+.xtabs .tab-content .thisismygroup li::after,.thisismygroup li a::after{content:''; display:table; clear:both;}
+.xtabs .tab-content .thisismygroup li a:hover{background:#f7f7f7;}
+.xtabs .tab-content .thisismygroup li a .av{width:40px; height: 40px; float:left; margin-right:10px;}
+.xtabs .tab-content .thisismygroup li a .av img{width:100%;display:block; border-radius: 3px 3px;}
+.xtabs .tab-content .thisismygroup li a .fordetail{width:230px; float:left; min-height:40px; position:relative;}
+.xtabs .tab-content .thisismygroup li a .fordetail .hername{font-size:14px; color:#444;width:95%;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:20px;}
+
+.xtabs .tab-content .thisismygroup li a .fordetail .whois_ingroup{height:20px; vertical-align: middle;}
+.xtabs .tab-content .thisismygroup li a .fordetail .whois_ingroup img{width:20px; height:20px; display:inline-block;}
+.xtabs .tab-content .thisismygroup li a .fordetail .whois_ingroup span{margin-left:5px; color:#777; display:inline-block; font-style: italic;}
+
+
+/*
+p.link {
+  clear: both;
+  margin: 380px 0 0 15px;
+}
+p.link a {
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  color: #fff;
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: #612e76;
+  -moz-transition: all 0.2s ease-in;
+  -o-transition: all 0.2s ease-in;
+  -webkit-transition: all 0.2s ease-in;
+  transition: all 0.2s ease-in;
+}
+p.link a:hover {
+  background-color: #522764;
+}
+*/
+   
+    
+/*
+@media only screen and (max-width : 540px) {
+    .chat-sidebar{display: none !important;}
+    .chat-popup{display: none !important;}
+}
+*/
+/* END of Side Bar Chat */
+            
+            .popup-box
+            {
+                display: none;
+                position: fixed;
+                bottom: 0px;
+                right: 220px;
+                height: 450px;
+                background-color: rgb(237, 239, 244);
+                width: 320px;
+                border: 1px solid rgba(29, 49, 91, .3);
+            }
+            
+            .popup-box .popup-head
+            {
+                background-color: #AF0606;
+                padding: 5px;
+                color: white;
+                font-weight: bold;
+                font-size: 14px;
+                clear: both;
+            }
+            
+            .popup-box .popup-head .popup-head-left
+            {
+                float: left;
+            }
+            
+            .popup-box .popup-head .popup-head-right
+            {
+                float: right;
+                opacity: 0.5;
+            }
+            
+            .popup-box .popup-head .popup-head-right a
+            {
+                text-decoration: none;
+                color: inherit;
+            }
+            
+            .popup-box .popup-messages
+            {
+                height: 100%;
+                overflow-y: scroll;
+            }
+/* START popup http://codepen.io/marcobiedermann/pen/rohwn?editors=1010*/            
+.chat-popup{
+        width: 320px;
+        position: fixed;
+        height: 450px;
+        right: 50%;
+        bottom: 0px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        border:0;
+        background:#C41200;
+        border-radius: 3px 3px 0 0;
+        box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.5);
+    }
+.chat-popup header {
+  background: transparent;
+  height:40px; top:0; left:0; position:absolute; width:100%;
+  color: #ffffff;
+  font-size: 14px;
+  cursor:s-resize;
+}
+.chat-popup header:before,
+.chat-popup header:after {
+  display: block;
+  content: '';
+  clear: both;
+}
+button.chat-popup-cc{position:relative; top:5px; float:right; margin-right: 5px; background:rgba(0,0,0,0.1); vertical-align: middle; border:0;}
+button.chat-popup-cc:hover{background:rgba(0,0,0,0.3);}
+button.chat-popup-cc:focus{outline: none;}
+
+.ichatwith{width:100%; height:45px; background:#fff; margin-top:30px; position:relative; float:left; border-bottom: 1px solid #ddd;}
+.inchat .av{width:50px; height:50px; margin-left:10px; margin-right:10px; background:#fff; border-radius: 3px 3px; padding:2px; /* position:absolute; */ top:-20px; box-shadow: 0 0 2px 0 rgba(0,0,0,0.4); float:left; margin-top:-20px;}
+.inchat .av > img{width:100%;border-radius: 3px 3px; display:block;}
+
+.inchat .inchat-detail{width:calc(100% - 104px); float:left; height:40px; margin-top:10px;}
+.inchat .inchat-detail .hername{font-size:14px; color:#444; width:100%;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:20px;}
+.inchat .inchat-detail .hername a{color:#22b0db;}
+.inchat .inchat-detail .des{height:20px; vertical-align:middle;}
+
+
+.chat_form{width:320px; overflow:auto; height:40px; background:#fff; border-top:1px solid #ddd; color:#444; margin-top:0px; position:relative;}
+.chat_form .chat_text_cv{min-height:100%;display:table; width:100%;}
+.chat_form .chat_text_input{vertical-align: middle;padding:5px 5px 0; font-size: 13px; max-width: 310px;
+    display: table-cell;
+    position: relative;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    word-wrap: break-word;
+    overflow:hidden;}
+.chat_form .chat_text_input:focus{outline: none;}
+
+.chat_control{width:100%; height:40px; background:#fff; margin-top:0px; position:relative;}
+.chat_control button.box_ctrl{width:40px; height:40px; font-size:16px; color:#c7c5c5; float:left; text-align: center; border:0; background:transparent;}
+.chat_control button.box_ctrl.right{float:right !important;}
+
+.chat_control button.box_ctrl:hover{background:#f9f9f9;}
+.chat_control button.box_ctrl:focus{outline: none;}
+
+.chatarea{width:100%; height:300px; max-height:300px; background:#ebeaea; margin-top:0; padding:0; float:left; position:relative; overflow:none;}
+.chatarea .evt_res{border-bottom:1px solid #ddd; background:#fafae7; position:absolute; top:0; left:0; width:320px; padding:4px 10px; font-size:12px; z-index: 2;}
+
+.chatarea .msgsc{/* display: table-cell;vertical-align: bottom; */ width:320px; /* background:black; */ max-height:300px;
+	overflow:   auto;
+    position:   absolute;
+    bottom:     0;
+}
+.chatarea .itsme{width:100%; min-height:60px; padding:5px; margin:0px;}
+.chatarea .myfritnd{width:100%; min-height:60px; padding:5px 5px 25px 5px; margin:0px; /* background:red; */}
+
+.chatarea .myfritnd::after,
+.chatarea .itsme::after{display:table; content:''; clear:both;}
+.chat_av{width:30px; height:30px; float:left; margin-right:5px;}
+.chat_av > img{width:100%; max-height:30px; display:block; border-radius: 3px 3px;}
+.messages{width:calc(100% - 35px); float:left; min-height:30px;}
+
+/* myfritnd */
+.chatarea .myfritnd .bubble {
+  display: inline-block;
+  margin: 0em 0.25em 0.25em 1em;
+  min-height: 1em;
+  padding: 0.25em 0.75em;
+  position: relative;
+  border-radius: 0em 0.5em 0.5em 0.5em;
+  line-height: 1.36;
+  color: #444;
+  background-color: #fff;
+  font-size: 12px;
+}
+.chatarea .myfritnd .bubble::before {
+  content: '';
+  display: block;
+  width: 0.75em;
+  height: 1em;
+  position: absolute;
+  left: -0.75em;
+  top: 0;
+  border-top: .75em solid #fff;
+  border-left:.75em solid transparent;
+}

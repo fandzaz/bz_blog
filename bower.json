@@ -1,0 +1,24 @@
+{
+  "name": "f",
+  "description": "f",
+  "main": "",
+  "authors": [
+    "fandzaz <fandzaz@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/fandzaz/bz_blog",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "1.5.0",
+    "angular-contenteditable": "^0.3.8",
+    "angular-simple-contenteditable": "^0.0.3"
+  }
+}

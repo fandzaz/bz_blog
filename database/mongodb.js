@@ -1,10 +1,12 @@
 module.exports = new function(){
 	var MongoClient = require('mongodb').MongoClient;
+	var mongoose = require('mongoose');
 	var dbmongo = '';
 	var dbm = ''
 	var ObjectID = require('mongodb').ObjectID;
 	var url = 'mongodb://DevByDeeDev:Pbird7979!@27.254.81.103:27017/bz_test';
 	//var url = 'mongodb://tanapong:qwertyui@ds053305.mlab.com:53305/mini_test';
+	mongoose.connect(url);
 	this.initMongo = function(){
 		MongoClient.connect(url, function(err, db) {
 		  if(err) {
@@ -70,104 +72,16 @@ module.exports = new function(){
 
 		});
 	}
-/*
-	this.find2 = function(name,document){
-		var data ;
-		function getItem(callback){
-
-			MongoClient.connect(url, function(err, db) {
-			  if(err) {
-				  console.log(err);
-			  }
-			  else{
-
-				 // var doucument = {first_name:'Minnie'}
-
-					  db.collection(name).find(document).toArray(function(err,collection){
-					  //console.log(collection);
-					 	 if(collection.length != 0){
-						 	 callback('xxxx');
-						 }
-					});
-
-
-
-
-			}
-
-			});
-	    }
-	    getItem(function(item){
-		   	data = item;
-		    return
-
-
-		})
-
-
-	}
-*/
-
 	this.find = function(name,document,callback){
 		var in_where = [];
+
 		var insert = '';
 		  dbm.collection(name).find(document).toArray(function(err,collection){
 				if(collection.length != 0){
 					callback(collection);
 				}
 			});
-		//db.orders.aggregate()
-/*
-			  dbm.collection(name).find(document).toArray(function(err,collection){
-				  //console.log(collection);
-				 	 if(collection.length != 0){
-						  //callback(collection);
-
-
-						  collection.forEach(function(item){
-							  dbm.collection('Bzn_users').find({ _id:db.ObjectId(item.member[0]) }).toArray(function(err,collection1){
-								  collection1.forEach(function(user){
-								  insert = {groupid:item._id,_id:user._id,name:user.first_name}
-								  in_where.push(insert)
-
-
-							  });
-
-
-						  });
-						 });
-						 callback(insert);
-
-
-							  in_where.push(item.member[0]);
-							  in_where.push(item.member[1]);
-
-
-
-					  }else{
-						  callback('err');
-					  }
-
-
-					  dbm.collection('Bzn_users').find({ _id: { $in: in_where } }).toArray(function(err,collection1){
-						  insert = {groupid:item._id,}
-
-						   collection1.forEach(function(item){
-							  in_where.push(item.member[0]);
-							  in_where.push(item.member[1]);
-						  });
-						  callback(collection);
-					  });
-
-					  //console.log(in_where);
-					 //
-
-
-			  });
-*/
-			  // console.log(in_where);
-
-	}
+		}
 
 	this.findMongo_whereid = function(name,doc,callback){
 		MongoClient.connect(url, function(err, db) {
