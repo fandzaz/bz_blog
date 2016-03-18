@@ -8,17 +8,22 @@
     <link href="/stylesheets/normalize.css" rel="stylesheet">
     <link href="/stylesheets/page.css" rel="stylesheet">
     <link href="/stylesheets/chat.css" rel="stylesheet">
- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script> 
-	   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
-<!--
-	 	  <script src="/bower_components/angular/angular.js">
-		 <script src="/javascripts/angular-contenteditable.js>
--->  
+
+	  
+
+	 	<script src="/js/angular.min.js">
+		
+		
+		 
+			
+		 	   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+	 
+  
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   </head>
   <body ng-controller="chat">
-	  {{q}}
+	  
 <!--
 	    <div class="chat-sidebar">
             <div class="sidebar-name">
@@ -581,16 +586,19 @@
 		<button class='box_ctrl right'><i class="fa fa-heart"></i></button>
 	</div> 
 </div>
-	
 <div style="clear: both"></div></div><div class="popup-messages"></div></div>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>   
  
        
         
     <script>
+// 	    ctrl.$setViewValue(element.html());
+
 	    angular.module('app', [])
 		.controller('chat', function($scope,$http) {
+			console.log($scope.q);
 			$scope.title = 'FFFF';
+/*
 			$http({
 			  method: 'POST',
 			  data:{id:'56e25471f0d71df75d8b4567'},
@@ -599,13 +607,16 @@
 	
 				console.log(response)
 				$scope.shop = response.data
-	
+				$.each(response.data, function( index, value ) {
+					console.log( index + ": " + value );
+				});
 	
 	
 			}, function errorCallback(response) {
 			    // called asynchronously if an error occurs
 			    // or server returns response with an error status.
 			});
+*/
 	
 			$http({
 			  method: 'POST',
@@ -614,6 +625,9 @@
 			}).then(function successCallback(response) {
 				console.log(response)
 				$scope.list = response.data
+				$.each(response.data, function( index, value ) {
+					console.log( index + ": " + value );
+				});
 	
 	
 			}, function errorCallback(response) {
@@ -621,7 +635,46 @@
 			    // or server returns response with an error status.
 			});
 			
-		});
+		});		 
+
+
+/*
+
+		angular.module('customControl', []).
+		  directive('contenteditable', function() {
+		    return {
+		      restrict: 'A', // only activate on element attribute
+		      require: '?ngModel', // get a hold of NgModelController
+		      link: function(scope, element, attrs, ngModel) {
+		        if(!ngModel) return; // do nothing if no ng-model
+		
+		        // Specify how UI should be updated
+		        ngModel.$render = function() {
+		          element.html(ngModel.$viewValue || '');
+		        };
+		
+		        // Listen for change events to enable binding
+		        element.on('blur keyup change', function() {
+		          scope.$apply(read);
+		        });
+		        read(); // initialize
+		
+		        // Write data to the model
+		        function read() {
+		          var html = element.html();
+		          // When we clear the content editable the browser leaves a <br> behind
+		          // If strip-br attribute is provided then we strip this out
+		          if( attrs.stripBr && html == '<br>' ) {
+		            html = '';
+		          }
+		          ngModel.$setViewValue(html);
+		        }
+		      }
+		    };
+		  });
+*/
+
+				
 		$(document).ready(function(){
 		    $('.msgsc').scrollTop($('.msgsc')[0].scrollHeight);
 	        console.log($('.msgsc').scrollTop());

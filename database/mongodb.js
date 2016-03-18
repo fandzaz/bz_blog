@@ -1,13 +1,24 @@
 module.exports = new function(){
 	var MongoClient = require('mongodb').MongoClient;
-	var mongoose = require('mongoose');
+	
 	var dbmongo = '';
 	var dbm = ''
 	var ObjectID = require('mongodb').ObjectID;
 	var url = 'mongodb://DevByDeeDev:Pbird7979!@27.254.81.103:27017/bz_test';
 	//var url = 'mongodb://tanapong:qwertyui@ds053305.mlab.com:53305/mini_test';
+	var mongoose = require('mongoose');
 	mongoose.connect(url);
+	var Schema = mongoose.Schema;
+	var group = mongoose.Schema({},{ collection : 'Bzn_group'})
+	var users = mongoose.Schema({},{ collection : 'Bzn_users'})
+		
+	mongoose.model('group', group);
+	mongoose.model('users', users);
+	
+	
+	
 	this.initMongo = function(){
+		
 		MongoClient.connect(url, function(err, db) {
 		  if(err) {
 			  console.log(err);
