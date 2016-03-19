@@ -11,12 +11,16 @@ module.exports = new function(){
 	var Schema = mongoose.Schema;
 	var group = mongoose.Schema({},{ collection : 'Bzn_group'})
 	var users = mongoose.Schema({},{ collection : 'Bzn_users'})
-		
+	var shop = mongoose.Schema({},{ collection : 'Bzn_shop'})
+	var friend = mongoose.Schema({},{ collection : 'Bzn_friend'})
+	var group_message = mongoose.Schema({},{ collection : 'Bzn_group_message'})
+	var user_online = mongoose.Schema({},{ collection : 'Bzn_user_online'})			
 	mongoose.model('group', group);
 	mongoose.model('users', users);
-	
-	
-	
+	mongoose.model('shop', shop);
+	mongoose.model('friend', friend);
+	mongoose.model('group_message', group_message);
+	mongoose.model('user_online', user_online);
 	this.initMongo = function(){
 		
 		MongoClient.connect(url, function(err, db) {

@@ -23,6 +23,24 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   </head>
   <body ng-controller="chat">
+	   <div class="container" ng-repeat="g in list_group">
+	<table class="table table-striped table-bordered table-condensed">
+	    <tr>
+	        <th class="span3">name</th>
+	        <td>{{ g.name_group }}</td>
+	    </tr>
+	    <tr>
+	        <th class="span3">accounts</th>
+	        <td>
+	            <ul ng-repeat="m in g.user">
+	                <li> {{m.naem}}</li>
+	                
+	            </ul>
+	        </td>
+	    </tr>
+	</table>
+    </div>
+
 	  
 <!--
 	    <div class="chat-sidebar">
@@ -75,7 +93,7 @@
         <div id="tab-content1" class="tab-content">
             <ul class='thisismyfriend'>
 	            
-	            <li  ng-repeat='n in list | filter:q'>
+	            <li  ng-repeat='n in list'>
 		            <a href='#'>
 			            <div class='av'><img src='https://im.bazarn.com/90x90/{{n.picture}}'></div>
 			            <div class='fordetail'>
@@ -245,12 +263,31 @@
             </ul>
         </div>
     </li>
-  
-    <li>
+       <li>
         <input type="radio" name="tabs" id="tab2"  />
         <label for="tab2">กลุ่ม</label>
         <div id="tab-content2" class="tab-content">
             <ul class='thisismygroup'>
+	            <li ng-repeat='g in list_group'>
+		            <a href='#'>
+			            <div class='av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
+			            <div class='fordetail'>
+				            <div class='hername'>{{g.name_group}}</div>
+				            <div class='whois_ingroup' >
+					            
+					            <img ng-repeat='m in g.user | limitTo:5' src='https://im.bazarn.com/90x90/{{m.picture}}'>
+<!--
+					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
+					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
+					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
+					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
+-->
+					            <span>{{check_num(g.user.length)}}</span>
+				            </div>
+			            </div>
+		            </a>
+	            </li>
+<!--
 	            <li>
 		            <a href='#'>
 			            <div class='av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
@@ -347,22 +384,7 @@
 			            </div>
 		            </a>
 	            </li>
-	            <li>
-		            <a href='#'>
-			            <div class='av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
-			            <div class='fordetail'>
-				            <div class='hername'>ชื่อกรุ๊ป</div>
-				            <div class='whois_ingroup'>
-					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
-					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
-					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
-					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
-					            <img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'>
-					            <span>...และอีก x คน</span>
-				            </div>
-			            </div>
-		            </a>
-	            </li>
+-->
             </ul>
         </div>
     </li>
@@ -598,25 +620,16 @@
 		.controller('chat', function($scope,$http) {
 			console.log($scope.q);
 			$scope.title = 'FFFF';
-/*
+						
 			$http({
 			  method: 'POST',
 			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatshop'
+			  url: '/chat/chatgroup'
 			}).then(function successCallback(response) {
-	
-				console.log(response)
-				$scope.shop = response.data
-				$.each(response.data, function( index, value ) {
-					console.log( index + ": " + value );
-				});
-	
-	
-			}, function errorCallback(response) {
-			    // called asynchronously if an error occurs
-			    // or server returns response with an error status.
-			});
-*/
+				console.log(response.data);
+				$scope.list_group = response.data;
+			}, function errorCallback(response) {});
+
 	
 			$http({
 			  method: 'POST',
@@ -625,15 +638,31 @@
 			}).then(function successCallback(response) {
 				console.log(response)
 				$scope.list = response.data
+				dataonline = [];
 				$.each(response.data, function( index, value ) {
-					console.log( index + ": " + value );
+					dataonline.push(value._id);
 				});
+
+				$http({
+				  method: 'POST',
+				  data:dataonline,
+				  url: '/chat/useronline'
+				}).then(function successCallback(response) {
+					console.log(response.data);
+					$scope.list_group = response.data;
+				})
+
+
 	
 	
-			}, function errorCallback(response) {
-			    // called asynchronously if an error occurs
-			    // or server returns response with an error status.
 			});
+			$scope.check_num = function(num){
+				if(num > 5){
+					return '...และอีก '+(num - 5)+' คน';
+				}else{
+					return '';
+				}
+			}
 			
 		});		 
 
