@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 async = require('async');
 db = require('./database/mongodb.js');
+chat_tool = require('./database/chat_tool.js');
+function_t = require('./database/function_tool.js');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');

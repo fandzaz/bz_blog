@@ -22,7 +22,6 @@ module.exports = new function(){
 	mongoose.model('group_message', group_message);
 	mongoose.model('user_online', user_online);
 	this.initMongo = function(){
-		
 		MongoClient.connect(url, function(err, db) {
 		  if(err) {
 			  console.log(err);
@@ -31,92 +30,19 @@ module.exports = new function(){
 			  dbm = db;
 			  console.log('ok');
 		  }
-
 		});
 
 	}
 	this.getFullname = function(id,callback){
-		//console.log(dbm);
 		var fullname ;
-		//this.find2('Bzn_users',{_id:db.ObjectId(id)});
-
-
-				this.find('Bzn_users',{_id:db.ObjectId(id)},function(data){
-
-					if(data == 'err'){
-						console.log('err');
-					}else{
-						callback(data[0].first_name+' '+data[0].last_name);
-					}
-
-
-				});
-/*
-				function callback(data){
-					fullname = data
-				}
-*/
-
-/*
-			function test(){
-
+		this.find('Bzn_users',{_id:db.ObjectId(id)},function(data){
+			if(data == 'err'){
+				console.log('err');
+			}else{
+				callback(data[0].first_name+' '+data[0].last_name);
 			}
-*/
-			//setTimeout(test, 3000);
-			//console.log(fullname);
-
-
-
-	}
-
-	this.findMongo = function(name,callback){
-		MongoClient.connect(url, function(err, db) {
-		  if(err) {
-			  console.log(err);
-		  }
-		  else{
-
-			 // var doucument = {first_name:'Minnie'}
-			  db.collection(name).find({}).toArray(function(err,collection){
-				  //console.log(collection);
-				  callback(collection);
-			  });
-
-
-			 }
-
 		});
 	}
-	this.find = function(name,document,callback){
-		var in_where = [];
-
-		var insert = '';
-		  dbm.collection(name).find(document).toArray(function(err,collection){
-				if(collection.length != 0){
-					callback(collection);
-				}
-			});
-		}
-
-	this.findMongo_whereid = function(name,doc,callback){
-		MongoClient.connect(url, function(err, db) {
-		  if(err) {
-			  console.log(err);
-		  }
-		  else{
-
-			 // var doucument = {first_name:'Minnie'}
-			  db.collection(name).find(doc).toArray(function(err,collection){
-				  //console.log(collection);
-				  callback(collection);
-			  });
-
-
-			 }
-
-		});
-	}
-
 	this.ObjectId = function(id){
 		return new ObjectID(id)
 	}
