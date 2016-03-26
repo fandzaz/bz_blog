@@ -1,6 +1,6 @@
 module.exports = new function(){
 	var MongoClient = require('mongodb').MongoClient;
-	
+
 	var dbmongo = '';
 	var dbm = ''
 	var ObjectID = require('mongodb').ObjectID;
@@ -9,12 +9,35 @@ module.exports = new function(){
 	var mongoose = require('mongoose');
 	mongoose.connect(url);
 	var Schema = mongoose.Schema;
-	var group = mongoose.Schema({},{ collection : 'Bzn_group'})
+	var group = mongoose.Schema({
+		group_name:String,
+		group_type:String,
+		member:[],
+	  last_update:Number,
+		shop_id:Schema.Types.Mixed
+	},{ collection : 'Bzn_group'})
+	var group_member = mongoose.Schema({
+		user_id:Schema.Types.ObjectId,
+		group_id:Schema.Types.ObjectId,
+		join_date:Number,
+		last_update:Number,
+	},{collection:'Bzn_group_member'});
 	var users = mongoose.Schema({},{ collection : 'Bzn_users'})
 	var shop = mongoose.Schema({},{ collection : 'Bzn_shop'})
 	var friend = mongoose.Schema({},{ collection : 'Bzn_friend'})
-	var group_message = mongoose.Schema({},{ collection : 'Bzn_group_message'})
-	var user_online = mongoose.Schema({},{ collection : 'Bzn_user_online'})			
+	var group_message = mongoose.Schema({
+		group_id:Schema.Types.ObjectId,
+		user_id:Schema.Types.ObjectId,
+		content:Schema.Types.Mixed,
+		post_time:Number,
+		read_status:Number,
+		post_type:String,
+		ip:String,
+		shop_id:Schema.Types.Mixed,
+		attr:Schema.Types.Mixed
+	},{ collection : 'Bzn_group_message'})
+	var user_online = mongoose.Schema({},{ collection : 'Bzn_user_online'})
+	mongoose.model('group_member', group_member);
 	mongoose.model('group', group);
 	mongoose.model('users', users);
 	mongoose.model('shop', shop);
@@ -33,70 +56,7 @@ module.exports = new function(){
 		});
 
 	}
-	this.getFullname = function(id,callback){
-		var fullname ;
-		this.find('Bzn_users',{_id:db.ObjectId(id)},function(data){
-			if(data == 'err'){
-				console.log('err');
-			}else{
-				callback(data[0].first_name+' '+data[0].last_name);
-			}
-		});
-	}
 	this.ObjectId = function(id){
 		return new ObjectID(id)
-	}
-	this.removeAll = function(name,callback){
-		MongoClient.connect(url, function(err, db) {
-		  if(err) {
-			  callback(err);
-		  }
-		  else{
-			db.collection(name).deleteMany( {}, function(err, results) {
-			 	console.log(results);
-			 	callback();
-		  	});
-		  }
-
-		});
-	}
-	this.remove_one = function(name,doc,callback){
-		MongoClient.connect(url, function(err, db) {
-		  if(err) {
-			  callback(err);
-		  }
-		  else{
-			db.collection(name).deleteOne(doc, function(err, results) {
-				if(err){
-					callback(err);
-				}else{
-					callback(results);
-				}
-			 	//console.log(results);
-
-		  	});
-		  }
-
-		});
-	}
-	this.insert = function(name,data,callback){
-		MongoClient.connect(url, function(err, db) {
-		  if(err) {
-			  callback(err);
-		  }
-		  else{
-			db.collection(name).insert(data,function(err,success){
-				  if(err){
-					  callback(err);
-				  }else{
-					  callback(success);
-				  }
-			  })
-
-			 }
-
-		});
-
-
 	}
 }

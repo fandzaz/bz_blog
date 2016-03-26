@@ -19,6 +19,8 @@
   "dependencies": {
     "angular": "1.5.0",
     "angular-contenteditable": "^0.3.8",
-    "angular-simple-contenteditable": "^0.0.3"
+    "angular-simple-contenteditable": "^0.0.3",
+    "angular-timeago": "^0.2.5",
+    "ng-timeago": "^0.0.2"
   }
 }

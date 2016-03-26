@@ -11,14 +11,151 @@
      <link href="/stylesheets/normalize.css" rel="stylesheet">
     <link href="/stylesheets/page.css" rel="stylesheet">
     <link href="/stylesheets/chat.css" rel="stylesheet">
-	
-	
+
+
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link href="/stylesheets/magnific-popup.css" rel="stylesheet">
     <link href="/stylesheets/dropzone.css" rel="stylesheet">
   </head>
-  <body  ng-controller="chat"  >
-  		<div class="list" compile="body_chat"></div>
+
+  <body ng-controller="chat" >
+        <div class="list" >
+        <div ng-init = "message = []">
+				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.id}}">
+				<header></header>
+        <div class='name_head'><div class='name'>{{c.name}}</div> <button  class='chat-popup-xc ' ng-click="close_popup(c.id)"><i class="fa fa-times"></i></button></div>
+          <button  class='chat-popup-cc ' ng-click="close_popup(c.id)"><i class="fa fa-times"></i></button>
+					<button  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
+					    <ul class='setting_list'>
+						    <li><a href='javascript:void(0);' class='plus_friend'>เพิ่มเพื่อน</a></li>
+						    <li><a href='javascript:void(0);' class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
+						    <li><a href='javascript:void(0);' class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
+					    </ul>
+					</button>
+					<button  class='chat-popup-cc plus_friend'><i class="fa fa-user-plus"></i></button>
+					<div class='ichatwith'>
+						<div class='inchat'>
+							<div class='av'><img ng-src='https://im.bazarn.com/90x90/{{c.picture}}'></div>
+							<div class='inchat-detail'>
+								<div class='hername'><a href='#'>{{c.name}}</a></div>
+							</div>
+						</div>
+					</div>
+					<div class='chatarea'>
+
+						<div class='find_frined'>
+							<input type='text' class='input_friend' name='' value='' placeholder="ค้นหาเพื่อน">
+							<button  class='chat-popup-cp close_find_friend'><i class="fa fa-times"></i></button>
+							<ul class='myfriendlist'>
+								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her namehis / her namehis / her name</div></a></li>
+								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
+								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
+								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
+								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
+							</ul>
+						</div>
+
+						<div class='msgsc'>
+							<div ng-repeat="mes in c.chat track by $index" >
+								<div ng-if="mes.post_type == 'text' ">
+									<div class='item-chat myfriend ' ng-if="checkMesFriend(mes.user_id)">
+											<div class='chat_av'><img ng-src='https://im.bazarn.com/90x90/{{mes.picture}}'></div>
+											<div class='messages'>
+												<div class='bubble'>
+													<div ng-if="mes.attr">
+														<div class='sendlink'>
+															<a href='{{mes.attr.url}}' target='_blank'>{{mes.attr.url}}</a>
+														</div>
+													</div>
+													<span dynamic="mes.content"></span>
+												</div>
+												<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
+												<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+											</div>
+									</div>
+
+									<div class='item-chat itsme' ng-if="checkMesMe(mes.user_id)">
+										<div class='messages'>
+											<div class='bubble'>
+												<div ng-if="mes.attr">
+													<div class='sendlink'>
+														<a href='{{mes.attr.url}}' target='_blank'>{{mes.attr.url}}</a>
+													</div>
+												</div>
+												<span dynamic="mes.content"></span>
+											</div>
+											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
+											<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+										</div>
+									</div>
+								</div>
+								<div ng-if="mes.post_type == 'image'">
+									<div class='item-chat myfriend' ng-if="checkMesFriend(mes.user_id)">
+										<div class='chat_av'><img ng-src='https://im.bazarn.com/90x90/{{c.picture}}'></div>
+										<div class='messages gal'>
+											<div class='img-chat' ng-repeat="pc in mes.content track by $index" >
+													<div class='img'>
+													<a href='http://27.254.81.103/{{pc}}'>
+														<img ng-src='http://27.254.81.103/{{pc}}'>
+													</a>
+												</div>
+											</div>
+											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
+											<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+										</div>
+									</div>
+									<div class='item-chat itsme' ng-if="checkMesMe(mes.user_id)">
+										<div class='messages gal'>
+											<div class='img-chat' ng-repeat="pc in mes.content track by $index">
+												<div class='img'>
+													<a href='http://27.254.81.103/{{pc}}'>
+														<img ng-src='http://27.254.81.103/{{pc}}'>
+													</a>
+												</div>
+											</div>
+											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
+											<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+										</div>
+									</div>
+								</div>
+							</div>
+            </div>
+					</div>
+
+					<div class='chat_form'>
+						<div class='chat_text_cv'>
+              <!-- <div class='chat_text_input'  contenteditable="true" ng-model="message" data-placeholder='พิมพ์ข้อความ...'></div> -->
+
+              <div class='chat_text_input'  contenteditable="true" ng-model="message[c.id]" enter-submit="sendChatMessage(c.gid,c.id)" data-placeholder='พิมพ์ข้อความ...'></div>
+            </div>
+					</div>
+
+					<div class='chat_control'>
+						<button class='box_ctrl upphoto'><i class="fa fa-camera-retro"></i></button>
+						<div class='dropup_emo'>
+						<button class='box_ctrl emoj dropup-opener'><i class="fa fa-smile-o"></i></button>
+							<div class="emo-menu emo_arr">
+								<div class='inner_gray'>อารมณ์ <a href="#" class="emo-menu_close" role="button" title="Close">&times;</a></div>
+							</div>
+						</div>
+						<div class='dropup_stk'>
+							<button class='box_ctrl right stk dropup-opener'><i class="fa fa-heart"></i></button>
+							<ul class="ddx-menu menu_arr">
+								<li><a href="#">B</a></li>
+					            <li><a href="#">S</a></li>
+					            <li><a href="#">S</a></li>
+					            <li><a href="#">C</a></li>
+					            <li><a href="#">E</a></li>
+					            <li><a href="#">B</a></li>
+					            <li><a href="#">U</a></li>
+					            <li><a href="#">R</a></li>
+					            <li><a href="#">U</a></li>
+					        </ul>
+						</div>
+					</div>
+					</div>
+      </div>
+
 	  <ul>
 		  <li>mini session chat ......... DONE</li>
 		  <li>add friend will be create new group | auto complete their friend ......... DONE</li>
@@ -29,47 +166,15 @@
 		  <li>Emoticon ......... DONE</li>
 		  <li>Quick Emoticon ......... DONE</li>
 	  </ul>
-	  
+
 	    <div class="chat-sidebar">
-            <div class="sidebar-name" ng-repeat="f in list">
+            <div class="sidebar-name" ng-repeat="f in list track by $index">
                 <!-- Pass username and display name to register popup -->
-                <a href="javascript:void(0)" ng-click="register_popup(f._id,f.name)">
-                    <img width="30" height="30" src="https://im.bazarn.com/45x45/{{f.picture}}" />
+                <a href="javascript:void(0)" ng-click="register_popup(f.gid,f._id,f.name,f.picture,'p')">
+                    <img width="30" height="30" ng-src="https://im.bazarn.com/45x45/{{f.picture}}" />
                     <span>{{f.name}}</span>
                 </a>
             </div>
-<!--
-            <div class="sidebar-name">
-                <a href="javascript:register_popup('qnimate', 'QNimate');">
-                    <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/shoplogo_56e3c109f0d71d097a8b4567_53404480.jpeg" />
-                    <span>QNimate</span>
-                </a>
-            </div>
-            <div class="sidebar-name">
-                <a href="javascript:register_popup('qscutter', 'QScutter');">
-                    <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/shoplogo_56e2666af0d71dc0758b4567_1383634472.jpeg" />
-                    <span>QScutter</span>
-                </a>
-            </div>
-            <div class="sidebar-name">
-                <a href="javascript:register_popup('qidea', 'QIdea');">
-                    <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/avatar_56e2543cf0d71d4e5d8b4567_1146068162.jpg" />
-                    <span>QIdea</span>
-                </a>
-            </div>
-            <div class="sidebar-name">
-                <a href="javascript:register_popup('qazy', 'QAzy');">
-                    <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/avatar_56e27075f0d71daa0e8b4567_2091331663.jpg" />
-                    <span>QAzy</span>
-                </a>
-            </div>
-            <div class="sidebar-name">
-                <a href="javascript:register_popup('qblock', 'QBlock');">
-                    <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg" />
-                    <span>QBlock</span>
-                </a>
-            </div>
--->
         </div>
 <div class='chat-sidebar-sp' id='chat-sidebar-sp'>
 	<button  class='xtabs-min'>&ndash;</button>
@@ -79,13 +184,13 @@
         <label for="tab1">เพื่อน</label>
         <div id="tab-content1" class="tab-content">
             <ul class='thisismyfriend'>
-	            <li  ng-repeat='n in list'>
-		            <a href='#'>
-			            <div class='av'><img src='https://im.bazarn.com/90x90/{{n.picture}}'></div>
+	            <li  ng-repeat='n in list track by $index' >
+		            <a href='#' ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
+			            <div class='av'><img ng-src='https://im.bazarn.com/90x90/{{n.picture}}'></div>
 			            <div class='fordetail'>
 				            <div class='hername'>{{n.name}}</div>
 				            <div class='online-state'>
-					            <div class='online{{n._id}} mystate iamoffline'></div><span class='online_text{{n._id}}'>ออฟไลน์ เมื่อ 4 นาทีที่แล้ว</span>
+					            <div class='online{{n._id}} mystate iamoffline'></div><span class='online_text{{n._id}}'></span>
 <!-- 					            <div class='mystate iamalway'></div><span>ออนไลน์แต่กำลังทำบางอย่าง</span> -->
 				            </div>
 			            </div>
@@ -95,17 +200,18 @@
         </div>
     </li>
        <li>
+
         <input type="radio" name="tabs" id="tab2"  />
         <label for="tab2">กลุ่ม</label>
         <div id="tab-content2" class="tab-content">
             <ul class='thisismygroup'>
-	            <li ng-repeat='g in list_group'>
-		            <a href='#'>
-			            <div class='av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
+	            <li ng-repeat='g in list_group track by $index'>
+               <a href='#' ng-click="register_popup(g.groupid,'',g.name_group,'uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
+			            <div class='av'><img ng-src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
 			            <div class='fordetail'>
 				            <div class='hername'>{{g.name_group}}</div>
 				            <div class='whois_ingroup' >
-					            <img ng-repeat='m in g.user | limitTo:5' src='https://im.bazarn.com/90x90/{{m.picture}}'>
+					            <img ng-repeat='m in g.user | limitTo:5 track by $index' ng-src='https://im.bazarn.com/90x90/{{m.picture}}'>
 					            <span>{{check_num(g.user.length)}}</span>
 				            </div>
 			            </div>
@@ -120,13 +226,13 @@
         <label for="tab3">มีกิจกรรมร่วมกัน</label>
         <div id="tab-content3" class="tab-content">
             <ul class='thisismyfriend'>
-	            <li ng-repeat="a in activities">
-		            <a href='#'>
-			            <div class='av'><img src='https://im.bazarn.com/90x90/{{a.picture}}'></div>
+	            <li ng-repeat="a in activities track by $index">
+		            <a href='#' ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p')">
+			            <div class='av'><img ng-src='https://im.bazarn.com/90x90/{{a.picture}}'></div>
 			            <div class='fordetail'>
 				            <div class='hername'>{{a.name}}</div>
 				            <div class='online-state'>
-					            <i class="fa fa-user"></i> <div class='mystate iamalway'></div><span>ออนไลน์แต่กำลังทำบางอย่าง</span>
+					            <i class="fa fa-user"></i> <div class='online{{a._id}} mystate '></div><span class='online_text{{a._id}} online_text'></span>
 				            </div>
 			            </div>
 		            </a>
@@ -136,222 +242,117 @@
         </div>
     </li>
 </ul>
-<div class='searchtab' contenteditable="true" data-placeholder='ค้นหา'></div>        
+<div class='searchtab' contenteditable="true" data-placeholder='ค้นหา'></div>
 </div>
 <div class='minsearch'><i class="fa fa-search-plus"></i>
 	<div class='labal'>2</div>
 </div>
 
-<?php include('master_chat.php');?>	
 
-<!-- CHAT PANEL -->
-<!--
-<div class='chat-popup'>
-	<header>
-	</header>
-	<div class='name_head'><div class='name'>ชื่อและนามสกุล</div> <button  class='chat-popup-xc close_this_popup'><i class="fa fa-times"></i></button></div>
-	<button  class='chat-popup-cc close_this_popup'><i class="fa fa-times"></i></button>
-	<button  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
-	    <ul class='setting_list'>
-		    <li><a href='javascript:void(0);' class='plus_friend'>เพิ่มเพื่อน</a></li>
-		    <li><a href='javascript:void(0);' class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
-		    <li><a href='javascript:void(0);' class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
-	    </ul>
-	</button>
-	<button  class='chat-popup-cc plus_friend'><i class="fa fa-user-plus"></i></button>
-	<div class='ichatwith'>
-		<div class='inchat'>
-			<div class='av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
-			<div class='inchat-detail'>
-				<div class='hername'><a href='#'>ชื่อร้าน หรือ ชื่อและนามสกุล ชื่อร้าน หรือ ชื่อและนามสกุล</a></div>
-			</div>
-		</div>
-	</div>
-	<div class='chatarea'>
-		
-		<div class='find_frined'>
-			<input type='text' class='input_friend' name='' value='' placeholder="ค้นหาเพื่อน">
-			<button  class='chat-popup-cp close_find_friend'><i class="fa fa-times"></i></button>
-			<ul class='myfriendlist'>
-				<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her namehis / her namehis / her name</div></a></li>
-				<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-				<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-				<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-				<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-			</ul>
-		</div>
-		<div class='msgsc'>
-			
-			<div class='item-chat myfriend'>
-				<div class='chat_av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e27075f0d71daa0e8b4567_2091331663.jpg'></div>
-				<div class='messages'>
-					<div class='bubble'>
-						<span>ทดสอบ text messages และ emoticon จะใช้บล็อคแบบนี้ สำหรับคู่ร่วมสนทนา</span>
-					</div>
-					<div class='msg_date'>วันนี้13:36</div>
-					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
-				</div>
-			</div>
-			<div class='item-chat myfriend'>
-				<div class='chat_av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e27075f0d71daa0e8b4567_2091331663.jpg'></div>
-				<div class='messages gal'>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://www.bazarn.com/media/post_56e25920f0d71dae628b4567_1004040274.png'>
-								<img src='https://www.bazarn.com/media/post_56e25920f0d71dae628b4567_1004040274.png'>
-							</a>
-						</div>
-					</div>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://im.bazarn.com/676x676/media/product_56e27075f0d71daa0e8b4567_1343950483.jpg'>
-								<img src='https://im.bazarn.com/676x676/media/product_56e27075f0d71daa0e8b4567_1343950483.jpg'>
-							</a>
-						</div>
-					</div>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'>
-								<img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'>
-							</a>
-						</div>
-					</div>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://im.bazarn.com/676x676/media/post_564953398992f718040041ad_2035307614.png'>
-								<img src='https://im.bazarn.com/676x676/media/post_564953398992f718040041ad_2035307614.png'>
-							</a>
-						</div>
-					</div>
-					<div class='msg_date'>วันนี้13:36</div>
-					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
-				</div>
-			</div>
-			<div class='item-chat myfriend'>
-				<div class='chat_av'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e27075f0d71daa0e8b4567_2091331663.jpg'></div>
-				<div class='messages'>
-					<div class='sendlink'>
-						<a href='https://www.bazarn.com' target='_blank'>link title</a>
-					</div>
-					<div class='msg_date'>วันนี้13:36</div>
-					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
-				</div>
-			</div>
-			
-			
-			
-			<div class='item-chat itsme'>
-				<div class='messages'>
-					<div class='bubble'>
-						<span>ทดสอบ text messagesทดสอบ text messagesทดสอบ text messagesทดสอบ text messagesทดสอบ text messagesทดสอบ text messagesทดสอบ text messagesทดสอบ</span>
-					</div>
-					<div class='msg_date'>วันนี้13:36</div>
-					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
-				</div>
-			</div>
 
-			<div class='item-chat itsme'>
-				<div class='messages gal'>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://www.bazarn.com/media/post_56e25920f0d71dae628b4567_1004040274.png'>
-								<img src='https://www.bazarn.com/media/post_56e25920f0d71dae628b4567_1004040274.png'>
-							</a>
-						</div>
-					</div>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://im.bazarn.com/676x676/media/product_56e27075f0d71daa0e8b4567_1343950483.jpg'>
-								<img src='https://im.bazarn.com/676x676/media/product_56e27075f0d71daa0e8b4567_1343950483.jpg'>
-							</a>
-						</div>
-					</div>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'>
-								<img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'>
-							</a>
-						</div>
-					</div>
-					<div class='img-chat'>
-						<div class='img'>
-							<a href='https://im.bazarn.com/676x676/media/post_564953398992f718040041ad_2035307614.png'>
-								<img src='https://im.bazarn.com/676x676/media/post_564953398992f718040041ad_2035307614.png'>
-							</a>
-						</div>
-					</div>
-					<div class='msg_date'>วันนี้13:36</div>
-					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
-				</div>
-			</div>
-			<div class='item-chat itsme'>
-				<div class='messages'>
-					<div class='sendlink'>
-						<a href='https://www.bazarn.com' target='_blank'>link title</a>
-					</div>
-					<div class='msg_date'>วันนี้13:36</div>
-					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
-				</div>
-			</div>
 
-		</div>
-	</div>
-	<div class='chat_form'>
-		<div class='chat_text_cv'>
-			<div class='chat_text_input' contenteditable="true" data-placeholder='พิมพ์ข้อความ...'></div>
-		</div>
-	</div> 
-	<div class='chat_control'>
-		<button class='box_ctrl upphoto'><i class="fa fa-camera-retro"></i></button>
-		<div class='dropup_emo'>
-		<button class='box_ctrl emoj dropup-opener'><i class="fa fa-smile-o"></i></button>
-			<div class="emo-menu emo_arr">
-				<div class='inner_gray'>อารมณ์ <a href="#" class="emo-menu_close" role="button" title="Close">&times;</a></div>
-			</div>
-		</div>
-		<div class='dropup_stk'>
-			<button class='box_ctrl right stk dropup-opener'><i class="fa fa-heart"></i></button>
-			<ul class="ddx-menu menu_arr">
-				<li><a href="#">B</a></li>
-                <li><a href="#">S</a></li>
-                <li><a href="#">S</a></li>
-                <li><a href="#">C</a></li>
-                <li><a href="#">E</a></li>
-                <li><a href="#">B</a></li>
-                <li><a href="#">U</a></li>
-                <li><a href="#">R</a></li>
-                <li><a href="#">U</a></li>
-            </ul>
-		</div>
-	</div>
-</div>
--->
 
 <div style="clear: both"></div></div><div class="popup-messages"></div></div>
 
-
+<button ng-click="addGroup()">test</button>
 <div class="overlay">
     <div class="bzn_dialog" style="min-height: 90px;">
 	    <div class='preload'></div>
         <div class="fade">
-	        
+
         </div>
     </div>
 </div>
+{{x1[a]}}
+<div ng-init="x1 = []">
+<div ng-repeat="c in data_chat">
+  <div>{{c.id}}</div>
 
-  <div compile="test1"></div>
+</div>
+
   </body>
 </html>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="/js/jquery.magnific-popup.min.js"></script>
-<script src="/js/angular.min.js"></script>   
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+
+
+
+
+
+
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.js"></script>
+ <script src="/js/jquery.magnific-popup.min.js"></script>
+<!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.2/angular.js"></script> -->
+<!--    <script src="/js/ngtimeago.js"></script>  -->
+
+<script src="/js/angular.min.js"></script>
+<script src="/js/angular-contenteditable.js"></script>
+<script src="/bower_components/ng-timeago/ngtimeago.js"></script>
+<script src="/bower_components/angular-timeago/src/timeAgo.js"></script>
 
 <!-- <script src="/js/dropzone.js"></script> -->
- 
+
 
     <script>
-	    	var app = angular.module('app', []);
-	    	app.directive('compile', ['$compile', function ($compile) {
+	    	var app = angular.module('app', ['yaru22.angular-timeago','contenteditable']);
+        app.directive('onFinishRender', function ($timeout) {
+			    return {
+			        restrict: 'A',
+			        link: function (scope, element, attr) {
+			            if (scope.$last === true) {
+			                $timeout(function () {
+			                    scope.$emit('ngRepeatFinished');
+			                });
+			            }
+			        }
+			    }
+			});
+      app.directive('myEnter', function () {
+        // call html tag my-enter="....()"
+          return function (scope, element, attrs) {
+              element.bind("keydown keypress", function (event) {
+                  if(event.which === 13) {
+                      scope.$apply(function (){
+                          scope.$eval(attrs.myEnter);
+                      });
+
+                      event.preventDefault();
+                  }
+              });
+          };
+      });
+      app.directive('enterSubmit', function () {
+        return {
+          restrict: 'A',
+          link: function (scope, elem, attrs) {
+
+            elem.bind('keydown', function(event) {
+              var code = event.keyCode || event.which;
+
+              if (code === 13) {
+                if (!event.shiftKey) {
+                  event.preventDefault();
+                  scope.$apply(attrs.enterSubmit);
+                }
+              }
+            });
+          }
+        }
+      });
+      app.directive('dynamic', function ($compile) {
+        return {
+          restrict: 'A',
+          replace: true,
+          link: function (scope, ele, attrs) {
+            scope.$watch(attrs.dynamic, function(html) {
+              ele.html(html);
+              $compile(ele.contents())(scope);
+            });
+          }
+        };
+      });
+     app.directive('compile', ['$compile', function ($compile) {
 			  return function(scope, element, attrs) {
 			    scope.$watch(
 			      function(scope) {
@@ -364,185 +365,369 @@
 			   )};
 			  }]);
 			app.controller('chat', function($scope,$http,$compile) {
-			$('.include').load("http://localhost:3000/chat/master_chat.html");
-			//$scope.name = '<a href="#" ng-click=close_popup()>&#10005;</a>';
-			//$('.test1').html('<a href="#" ng-click=close_popup()>&#10005;</a>')
-						
-			$http({
-			  method: 'POST',
-			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatgroup'
-			}).then(function successCallback(response) {
-				$scope.list_group = response.data;
-			}, function errorCallback(response) {});
+        $scope.test3 = ['a','b','c','d'];
+        $scope.lines = [{
+       text: 'res1'},
+   {
+       text: 'res2'}];
 
-						
-			$http({
-			  method: 'POST',
-			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatActivities'
-			}).then(function successCallback(response) {
-				$scope.activities = response.data;
-				
-			}, function errorCallback(response) {});
-			$http({
-			  method: 'POST',
-			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatlist'
-			}).then(function successCallback(response) {
-				console.log(response);
-				$scope.list = response.data
-				dataonline = [];
-				$.each(response.data, function( index, value ) {
-					dataonline.push(value._id);
-				});
+
+        session_id = '56e25471f0d71df75d8b4567';
 				$http({
 				  method: 'POST',
-				  data:dataonline,
-				  url: '/chat/useronline'
+				  data:{id:'56e25471f0d71df75d8b4567'},
+				  url: '/chat/chatgroup'
 				}).then(function successCallback(response) {
-					console.log(response.data);
+					$scope.list_group = response.data;
 
-					$.each(response.data, function( index, data_online ) {
-						if(data_online.status_online == 1){
-							$('.online'+data_online._id).addClass('iamonline');
-							$('.online_text'+data_online._id).html('ออนไลน์');
-						}else if(data_online.status_online == 2){
-							$('.online'+data_online._id).addClass('iamalway');
-							$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
-						}else{
-							$('.online'+data_online._id).addClass('iamoffline');
-							$('.online_text'+data_online._id).html('ออฟไลน์');
-						}
-						
-						
+				}, function errorCallback(response) {});
+
+				$http({
+				  method: 'POST',
+				  data:{id:session_id},
+				  url: '/chat/chatActivities'
+				}).then(function successCallback(response) {
+					$scope.activities = response.data;
+
+				}, function errorCallback(response) {});
+				$http({
+				  method: 'POST',
+				  data:{id:session_id},
+				  url: '/chat/chatlist'
+				}).then(function successCallback(response) {
+          $scope.list = response.data
+          console.log(response.data);
+
+					dataonline = [];
+					$.each(response.data, function( index, value ) {
+						dataonline.push(value._id);
 					});
+					$http({
+					  method: 'POST',
+					  data:dataonline,
+					  url: '/chat/useronline'
+					}).then(function successCallback(response) {
+            $.each(dataonline, function( index, data_online ) {
 
-					
-				})
+              $('.online'+data_online).addClass('iamoffline');
+              $('.online_text'+data_online).html('ออฟไลน์');
+            });
+						$.each(response.data, function( index, data_online ) {
+
+							if(data_online.status_online == 1){
+								$('.online'+data_online._id).addClass('iamonline');
+								$('.online_text'+data_online._id).html('ออนไลน์');
+							}else if(data_online.status_online == 2){
+								$('.online'+data_online._id).addClass('iamalway');
+								$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
+							}else{
+								$('.online'+data_online._id).addClass('iamoffline');
+								$('.online_text'+data_online._id).html('ออฟไลน์');
+							}
+						});
+
+					})
+				});
+			Array.prototype.remove = function() {
+		    var what, a = arguments, L = a.length, ax;
+		    while (L && this.length) {
+		        what = a[--L];
+		        while ((ax = this.indexOf(what)) !== -1) {
+		            this.splice(ax, 1);
+		        }
+		    }
+		    return this;
+			};
 
 
-	
-	
-			});
+
+
 			var total_popups = 0;
 			var popups = [];
-			$scope.register_popup = function(id,name){
-				alert(id);
-				for(var iii = 0; iii < popups.length; iii++){   
-	              	if(id == popups[iii]){
-	                    Array.remove(popups, iii);
-	                
-	                    popups.unshift(id);
-	                    
-	                    calculate_popups();
-	                    return;
-	                }
-	            }               
-	            var element = '<div class="popup-box chat-popup" id=\"'+ id +'\">';
-	            element = element + '<div class="popup-head">';
-	            element = element + '<div class="popup-head-left">'+ name +'</div>';
-	            element = element + '<div class="popup-head-right"><a href="#" ng-click=close_popup(\"'+id+'\")>&#10005;</a></div>';
-	            element = element + '<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
-	           //$scope.test1 = '<a href="#" ng-click=close_popup(\"'+id+'\")>&#10005;</a>';
-	           // $scope.test1 = document.getElementsByTagName("body")[0].innerHTML + element;
-	           
-	            //$('.test1').html(element);
-	            //document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
-	            var template = angular.element(element);
-				temp =  $compile(template)($scope)
-				$scope.body_chat = $('.list').html() + element;
-				//$scope.body_chat = text;			
-				
-				//$('.test').html(element);
-				//$scope.test1 = element;
-				//console.log(element);
-				//var body = document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
-				//$('body').html(document.getElementsByTagName("body")[0].innerHTML + element)
-				
-				//document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
-				//$('.body_chat').html(html);
-				//document.getElementsByTagName("body")[0].innerHTML = html + temp;
-				//$('.test').html(html + temp) ;
-				//temp =  test;
-				//$('.test').html(temp);
-				//angular.element($('.test')).append(temp);
-	    
-	            popups.unshift(id);
-	            //$scope.test = $compile(document.getElementsByTagName("body")[0].innerHTML  +   element )     
-	            calculate_popups();
-	           // $scope.body_chat = element;
-	            				//document.getElementsByTagName("body")[0].innerHTML = temp;
+			var data_chat = [];
+			var chat = [];
 
-	           //$('body').html(temp);
+      $scope.sendChatMessage = function(gid,id){
+        console.log(gid);
+        $http({
+          method: 'POST',
+          data:{gid:gid,user_id:session_id,message:$scope.message[id]},
+          url: '/chat/sendChatMessage'
+        }).then(function successCallback(response) {
+          $scope.message[id] = '';
+          console.log(response);
+
+        }, function errorCallback(response) {});
+
+      }
+      $scope.loadMessageChat = function(gid){
+        $http({
+            method: 'POST',
+            data:{id:session_id,friend_id:user_id},
+            url: '/chat/chatMessage'
+          }).then(function successCallback(response) {
+
+
+          }, function errorCallback(response) {});
+          // function updateChat(){
+          //   var ck = true;
+          //   $.each($scope.data_chat,function(index,data){
+          //       if(data.gid == gid){
+          //         ck = false;
+          //       }
+          //   })
+          // }
+      }
+      $scope.loadListChat = function(){
+        $http({
+				  method: 'POST',
+				  data:{id:session_id},
+				  url: '/chat/chatlist'
+				}).then(function successCallback(response) {
+          $scope.list = response.data
+          console.log(response.data);
+					dataonline = [];
+					$.each(response.data, function( index, value ) {
+						dataonline.push(value._id);
+					});
+					$http({
+					  method: 'POST',
+					  data:dataonline,
+					  url: '/chat/useronline'
+					}).then(function successCallback(response) {
+            $.each(dataonline, function( index, data_online ) {
+
+              $('.online'+data_online).addClass('iamoffline');
+              $('.online_text'+data_online).html('ออฟไลน์');
+            });
+						$.each(response.data, function( index, data_online ) {
+
+							if(data_online.status_online == 1){
+								$('.online'+data_online._id).addClass('iamonline');
+								$('.online_text'+data_online._id).html('ออนไลน์');
+							}else if(data_online.status_online == 2){
+								$('.online'+data_online._id).addClass('iamalway');
+								$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
+							}else{
+								$('.online'+data_online._id).addClass('iamoffline');
+								$('.online_text'+data_online._id).html('ออฟไลน์');
+							}
+						});
+
+					})
+				});
+      }
+			$scope.register_popup = function(id,user_id,name,picture,type){
+
+          for(var iii = 0; iii < popups.length; iii++){
+			      if(id == popups[iii]){
+			        Array.remove1(popups, iii);
+              popups.unshift(user_id);
+
+		          calculate_popups();
+              return;
+			      }
+
+			    }
+          if(type == 'p'){
+            $http({
+      				  method: 'POST',
+      				  data:{id:session_id,friend_id:user_id},
+      				  url: '/chat/chatMessage'
+      				}).then(function successCallback(response) {
+
+                if($scope.data_chat != null){
+                  if(id == null){
+                    chat = {gid:id,id:user_id,name:name,picture:picture,chat:response.data}
+                    insert_array(user_id,chat);
+                    addActivities(session_id,user_id,function(result){
+                      $scope.loadListChat();
+                    });
+                  }else{
+                    chat = {gid:id,id:user_id,name:name,picture:picture,chat:response.data}
+        						insert_array(user_id,chat);
+                  }
+
+      					}else{
+                  if(id == null){
+                    console.log('start');
+                    chat = [{gid:id,id:user_id,name:name,picture:picture,chat:response.data}]
+                    $scope.data_chat = chat;
+                    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+                      calculate_popups();
+                    });
+                    addActivities(session_id,user_id,function(result){
+                      $scope.loadListChat();
+                    })
+                  }else{
+                    chat = [{gid:id,id:user_id,name:name,picture:picture,chat:response.data}]
+                    $scope.data_chat = chat;
+                    console.log($scope.data_chat)
+                    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+                      calculate_popups();
+                    });
+                  }
+                }
+      				}, function errorCallback(response) {});
+          }else{
+            $http({
+              method: 'POST',
+              data:{id:session_id,group_id:id},
+              url: '/chat/chatGroupMessage'
+            }).then(function successCallback(response) {
+              if($scope.data_chat != null){
+                chat = {id:id,name:name,picture:picture,chat:response.data}
+                insert_array(id,chat);
+              }else{
+                chat = [{id:id,name:name,picture:picture,chat:response.data}]
+                $scope.data_chat = chat;
+                $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+                  calculate_popups();
+                });
+              }
+              //$scope.list_group = response.data;
+            }, function errorCallback(response) {});
+
+          }
+
+				popups.unshift(user_id);
+
+
+
+
+
+
 			}
-			Array.remove = function(array, from, to) {
+
+
+			Array.remove1 = function(array, from, to) {
+
 				var rest = array.slice((to || from) + 1 || array.length);
 	            array.length = from < 0 ? array.length + from : from;
 	            return array.push.apply(array, rest);
         	};
-			
+      function addActivities(session_id,user_id,callback){
+        $http({
+          method: 'POST',
+          data:{id:session_id,user_id:user_id},
+          url: '/chat/addActivities'
+        }).then(function successCallback(resGroup) {
+          callback(resGroup)
+        })
+      }
 			$scope.close_popup = function(id){
-				alert(id);
-	            for(var iii = 0; iii < popups.length; iii++)
-	            {
-	                if(id == popups[iii])
-	                {
-		                console.log(popups[iii]);
-	                    Array.remove(popups, iii);
-	                    
-	                    document.getElementById(id).style.display = "none";
-	                    
-	                    calculate_popups();
-	                    
-	                    return;
+
+
+
+					 for(var iii = 0; iii < popups.length; iii++){
+		                if(id == popups[iii]){
+			             		Array.remove1(popups, iii);
+			             		document.getElementById(id).style.display = "none";
+
+			             		calculate_popups();
+
+							return;
 	                }
-	            }   
+
+	            }
+
+
+	         }
+	        function insert_array(id,chat_insert){
+              var ck = true;
+			        $.each($scope.data_chat,function(index,data){
+				        if(data.id == id){
+					      ck = false;
+					    }
+			    	})
+					if(ck){
+            $scope.data_chat.push(chat_insert);
+						$scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+							calculate_popups();
+			    	});
+
+					}else{
+						calculate_popups();
+					}
+
+
+	        }
+	        function del_array(id){
+
+		        $.each($scope.data_chat,function(index,data){
+			       if(data.id == id){
+				       $scope.data_chat.splice(index,1);
+
+			       }
+
+		        })
 	        }
 			function display_popups(){
-				
-	            var calRight = $('.chat-sidebar-sp').width();
-	            
-	            var right = 340;
-	            
-	            var iii = 0;
-	            for(iii; iii < total_popups; iii++)
-	            {
-		            console.log(popups[iii]);
-	                if(popups[iii] != undefined)
-	                {
-		                console.log(popups[iii]);
-		                var element = $('#56e25920f0d71dae628b4567');
-	                    //var element = document.getElementById('');
-	                    console.log(element)
-	                    element.style.right = right + "px";
-	                    right = right + 340;
-	                    element.style.display = "block";
-	                }
-	            }
-	            
-	            for(var jjj = iii; jjj < popups.length; jjj++)
-	            {
-	                var element = document.getElementById(popups[jjj]);
-	                element.style.display = "none";
-	            }
+
+		            var calRight = $('.chat-sidebar-sp').width();
+
+		            var right = 340;
+
+		            var iii = 0;
+		            for(iii; iii < total_popups; iii++)
+		            {
+
+		                if(popups[iii] != undefined)
+		                {
+
+
+			               	var element = document.getElementById(popups[iii]);
+
+		                    element.style.right = right + "px";
+		                    right = right + 340;
+		                    element.style.display = "block";
+		                }
+		            }
+
+		            for(var jjj = iii; jjj < popups.length; jjj++)
+		            {
+		                var element = document.getElementById(popups[jjj]);
+		                element.style.display = "none";
+		            }
+
 	        }
 			function calculate_popups(){
-				
-	            var width = window.innerWidth;
-	            console.log(window);
-	            if(width < 540){
-	                total_popups = 0;
-	            }
-	            else{
-	                width = width - 320;
-	                //320 is width of a single popup box
-	                total_popups = parseInt(width/340);
-	            }
-	            
-	            display_popups();
-        	}
 
+		            var width = window.innerWidth;
+
+		            if(width < 540){
+		                total_popups = 0;
+		            }
+		            else{
+		                width = width - 320;
+
+		                total_popups = parseInt(width/340);
+		            }
+		            display_popups();
+
+
+
+        	}
+        	$scope.newDate = function(date){
+	        	console.log(new Date(1000 * date));
+	        	return new Date(1000 *date).toString();
+        	}
+			$scope.checkMesFriend = function(id){
+
+				if(session_id != id ){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			$scope.checkMesMe = function(id){
+
+				if(session_id == id ){
+					return true;
+				}else{
+					return false;
+				}
+			}
 			$scope.check_num = function(num){
 				if(num > 5){
 					return '...และอีก '+(num - 5)+' คน';
@@ -550,8 +735,14 @@
 					return '';
 				}
 			}
-			
-		});		 
+			window.addEventListener("resize", calculate_popups);
+			window.addEventListener("load", calculate_popups);
+
+		});
+
+
+
+
 
 			$('.dropup_stk').on('click', '> .dropup-opener', function(e) {
 			    e.preventDefault();
@@ -586,87 +777,87 @@
 				      $('.emoj').html('<i class="fa fa-times"></i>');
 				    }
 			});
-			
+
 			$(document).on('click','.show-friend-ingroup',function() {
-				
+
 				$('.fade').load('friend.html',function(result){
-					
+
 					$(".overlay, .bzn_dialog").css("opacity", 1);
 					$(".overlay").show();
-					
+
 					var mdheight = $(".fade").height(); console.log(mdheight);
 					$(".overlay, .bzn_dialog").css("opacity", 0);
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
-		
+
 					/*Set min height to 90px after mdheight has been set*/
 					$(".bzn_dialog").css("min-height", "90px");
 					$(".overlay").show();
-					
+
 					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-					
+
 					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
 					/*When animation is done show inside content*/
-					
+
 						$(".preload").empty();
 					    $(".fade").show();
 					});
-				});	
+				});
 			});
-			
+
 			$(document).on('click','.show-group-setting',function() {
-				
+
 				$('.fade').load('setting.html',function(result){
-					
+
 					$(".overlay, .bzn_dialog").css("opacity", 1);
 					$(".overlay").show();
-					
+
 					var mdheight = $(".fade").height(); console.log(mdheight);
 					$(".overlay, .bzn_dialog").css("opacity", 0);
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
-		
+
 					/*Set min height to 90px after mdheight has been set*/
 					$(".bzn_dialog").css("min-height", "90px");
 					$(".overlay").show();
-					
+
 					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-					
+
 					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
 					/*When animation is done show inside content*/
-					
+
 						$(".preload").empty();
 					    $(".fade").show();
 					});
-				});	
+				});
 			});
-			
+
 			$(document).on('click','.upphoto',function() {
-				
+
 				$('.fade').load('upload.html',function(result){
-					
+
 					$(".overlay, .bzn_dialog").css("opacity", 1);
 					$(".overlay").show();
-					
+
 					var mdheight = $(".fade").height(); console.log(mdheight);
 					$(".overlay, .bzn_dialog").css("opacity", 0);
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
-		
+
 					/*Set min height to 90px after mdheight has been set*/
 					$(".bzn_dialog").css("min-height", "90px");
 					$(".overlay").show();
-					
+
 					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-					
+
 					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "590"}, 600, function() {
 					/*When animation is done show inside content*/
-					
+
 						$(".preload").empty();
 					    $(".fade").show();
 					    $("#dropzonex").dropzone({ url: "http://192.168.0.14:3000/uploads" });
 					});
-				});	
+				});
 			});
 
 			/*Close dialog*/
@@ -677,30 +868,30 @@
 					$(".bzn_dialog").css("min-height", "90px");
 				});
 			});
-			
+
 
 	    /**************************/
 	    $(document).ready(function(){
-			$('.gal').each(function() {	
+			$('.gal').each(function() {
 				$(this).magnificPopup({
 				    delegate: 'a',
 				    type: 'image',
 				    gallery:{enabled:true}
 				});
-			});	
+			});
 		    //$('.msgsc').scrollTop($('.msgsc')[0].scrollHeight);
-		    
+
 	        $(document).on('click','.dd_cog', function(){
 		        $('.setting_list').slideToggle('fast');
 	        });
 	        $(".setting_list > li > a").click(function () {
 		        //Toggle the child but don't include them in the hide selector using .not()
 		        $('.dd_cog > .setting_list').not($(this).children(".setting_list").slideToggle('fast'));
-		
+
 		    });
-	    
+
 	    });
-	    
+
 	   $(document).on('keyup','.input_friend', function(){
 		   var text = $('.input_friend').val();
 		   if(text.length > 0){
@@ -715,17 +906,17 @@
 	   $(document).on('click','.close_find_friend', function(){
 		   $('.find_frined').slideToggle('fast');
 	   });
-	   
+
 	   $(document).on('click','.close_this_popup', function(){
 		   $('.chat-popup').slideToggle('fast');
 	   });
-	   
-	   
-			 
+
+
+
 	    $(document).on('click','.chat-popup header',function(e) {
 			e.preventDefault();
 			var chat_popup = $('.chat-popup');
-			
+
 			if (chat_popup.hasClass('hide')) {
                 chat_popup.removeClass('hide');
 	                $('.chatarea').slideToggle(300);
@@ -749,9 +940,9 @@
 					$('.chat-popup').css('width','140px');
 					$(this).css('cursor','n-resize');
 		    }
-	
+
 		});
-		
+
 	    $(document).on('click','.xtabs-min',function(e) {
 			e.preventDefault();
 			$('.chat-sidebar-sp').slideToggle(300);
@@ -762,123 +953,10 @@
 			$('.chat-sidebar-sp').slideToggle(300);
 			$('.minsearch').slideToggle(300);
 		});
-	    
-	    
-	    //$('.chat-sidebar-sp').draggable({ handle: 'header' });
-        //this function can remove a array element.
-        Array.remove = function(array, from, to) {
-            var rest = array.slice((to || from) + 1 || array.length);
-            array.length = from < 0 ? array.length + from : from;
-            return array.push.apply(array, rest);
-        };
-    
-        //this variable represents the total number of popups can be displayed according to the viewport width
-        var total_popups = 0;
-        
-        //arrays of popups ids
-        var popups = [];
-    
-        //this is used to close a popup
-        function close_popup(id)
-        {
-            for(var iii = 0; iii < popups.length; iii++)
-            {
-                if(id == popups[iii])
-                {
-                    Array.remove(popups, iii);
-                    
-                    document.getElementById(id).style.display = "none";
-                    
-                    calculate_popups();
-                    
-                    return;
-                }
-            }   
-        }
-    
-        //displays the popups. Displays based on the maximum number of popups that can be displayed on the current viewport width
-        function display_popups()
-        {
-            var calRight = $('.chat-sidebar-sp').width();
-            console.log(calRight);
-            var right = 340;
-            
-            var iii = 0;
-            for(iii; iii < total_popups; iii++)
-            {
-	            console.log(iii);
-                if(popups[iii] != undefined)
-                {
-                    var element = document.getElementById(popups[iii]);
-                    
-                    element.style.right = right + "px";
-                    right = right + 340;
-                    element.style.display = "block";
-                }
-            }
-            
-            for(var jjj = iii; jjj < popups.length; jjj++)
-            {
-                var element = document.getElementById(popups[jjj]);
-                element.style.display = "none";
-            }
-        }
-        
-        //creates markup for a new popup. Adds the id to popups array.
-        function register_popup(id, name)
-        {
-            
-            for(var iii = 0; iii < popups.length; iii++)
-            {   
-                //already registered. Bring it to front.
-                if(id == popups[iii])
-                {
-                    Array.remove(popups, iii);
-                
-                    popups.unshift(id);
-                    
-                    calculate_popups();
-                    
-                    
-                    return;
-                }
-            }               
-            
-            var element = '<div class="popup-box chat-popup" id="'+ id +'">';
-            element = element + '<div class="popup-head">';
-            element = element + '<div class="popup-head-left">'+ name +'</div>';
-            element = element + '<div class="popup-head-right"><a href="javascript:close_popup(\''+ id +'\');">&#10005;</a></div>';
-            element = element + '<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
-            
-            document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;  
-    
-            popups.unshift(id);
-                    
-            calculate_popups();
-            
-        }
-        
-        //calculate the total number of popups suitable and then populate the toatal_popups variable.
-        function calculate_popups()
-        {
-            var width = window.innerWidth;
-            if(width < 540)
-            {
-                total_popups = 0;
-            }
-            else
-            {
-                width = width - 320;
-                //320 is width of a single popup box
-                total_popups = parseInt(width/340);
-            }
-            
-            display_popups();
-            
-        }
-        
+
+
+
         //recalculate when window is loaded and also when window is resized.
-        window.addEventListener("resize", calculate_popups);
-        window.addEventListener("load", calculate_popups);
-        
+
+
     </script>

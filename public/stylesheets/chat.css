@@ -499,6 +499,7 @@ button.chat-popup-cp:focus{outline: none;}
   color: #444;
   background-color: #fcf5f5;
   font-size: 12px;
+  float: right;
 }
 .chatarea .itsme .bubble::before {
   content: '';
