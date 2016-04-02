@@ -16,15 +16,22 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link href="/stylesheets/magnific-popup.css" rel="stylesheet">
     <link href="/stylesheets/dropzone.css" rel="stylesheet">
+
   </head>
 
   <body ng-controller="chat" >
+        <div ng-init="session_id = '<%= id%>'">
+        <button ng-click="load()">Load</button>
+          {{session_id}}
+
         <div class="list" >
         <div ng-init = "message = []">
-				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.id}}">
+        <div ng-init = "message_check = []">
+				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.gid}}">
 				<header></header>
-        <div class='name_head'><div class='name'>{{c.name}}</div> <button  class='chat-popup-xc ' ng-click="close_popup(c.id)"><i class="fa fa-times"></i></button></div>
-          <button  class='chat-popup-cc ' ng-click="close_popup(c.id)"><i class="fa fa-times"></i></button>
+
+        <div class='name_head'><div class='name'>{{c.name}}</div> <button  class='chat-popup-xc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button></div>
+          <button  class='chat-popup-cc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button>
 					<button  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
 					    <ul class='setting_list'>
 						    <li><a href='javascript:void(0);' class='plus_friend'>เพิ่มเพื่อน</a></li>
@@ -42,7 +49,7 @@
 						</div>
 					</div>
 					<div class='chatarea'>
-
+            <div class='evt_res ' ng-if="message_check[c.id]">Message Empty</div>
 						<div class='find_frined'>
 							<input type='text' class='input_friend' name='' value='' placeholder="ค้นหาเพื่อน">
 							<button  class='chat-popup-cp close_find_friend'><i class="fa fa-times"></i></button>
@@ -55,8 +62,9 @@
 							</ul>
 						</div>
 
-						<div class='msgsc'>
-							<div ng-repeat="mes in c.chat track by $index" >
+						<div class='msgsc boxchat{{c.id}}' >
+							<div  ng-repeat="mes in c.chat  track by $index " on-finish-render="ngRepeatFinished">
+
 								<div ng-if="mes.post_type == 'text' ">
 									<div class='item-chat myfriend ' ng-if="checkMesFriend(mes.user_id)">
 											<div class='chat_av'><img ng-src='https://im.bazarn.com/90x90/{{mes.picture}}'></div>
@@ -69,8 +77,10 @@
 													</div>
 													<span dynamic="mes.content"></span>
 												</div>
-												<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
-												<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+                        <!-- {{mes.post_time * 1000 | timeAgo}} -->
+
+												<div class='msg_date' ></div>
+												<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
 											</div>
 									</div>
 
@@ -84,8 +94,8 @@
 												</div>
 												<span dynamic="mes.content"></span>
 											</div>
-											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
-											<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+											<div class='msg_date'><span dynamic="getTimeAgo(mes.post_time)"></div>
+											<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
 										</div>
 									</div>
 								</div>
@@ -101,7 +111,7 @@
 												</div>
 											</div>
 											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
-											<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+											<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
 										</div>
 									</div>
 									<div class='item-chat itsme' ng-if="checkMesMe(mes.user_id)">
@@ -113,20 +123,26 @@
 													</a>
 												</div>
 											</div>
-											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
-											<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
+                      <!-- <span dynamic="getTimeAgo(mes.post_time)"> -->
+											<div class='msg_date'><span dynamic="getTimeAgo(mes.post_time)"></div>
+											<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
 										</div>
 									</div>
 								</div>
 							</div>
             </div>
+
 					</div>
 
 					<div class='chat_form'>
+
 						<div class='chat_text_cv'>
               <!-- <div class='chat_text_input'  contenteditable="true" ng-model="message" data-placeholder='พิมพ์ข้อความ...'></div> -->
+                  <div class="loadMessage{{c.id}}"></div>
 
-              <div class='chat_text_input'  contenteditable="true" ng-model="message[c.id]" enter-submit="sendChatMessage(c.gid,c.id)" data-placeholder='พิมพ์ข้อความ...'></div>
+                  <!-- <div class='chat_text_input' contenteditable="true" ng-model="message[c.id]"   enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div> -->
+                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.id]"  ng-paste="pasteHtml($event,c.id)" ng-keyup="focusInput(c.id)"  enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div>
+
             </div>
 					</div>
 
@@ -153,6 +169,7 @@
 					        </ul>
 						</div>
 					</div>
+
 					</div>
       </div>
 
@@ -179,20 +196,21 @@
 <div class='chat-sidebar-sp' id='chat-sidebar-sp'>
 	<button  class='xtabs-min'>&ndash;</button>
 <ul class="xtabs">
-    <li>
+    <li ng-init="list = []">
         <input type="radio" name="tabs" id="tab1" checked />
         <label for="tab1">เพื่อน</label>
         <div id="tab-content1" class="tab-content">
             <ul class='thisismyfriend'>
-	            <li  ng-repeat='n in list track by $index' >
-		            <a href='#' ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
-			            <div class='av'><img ng-src='https://im.bazarn.com/90x90/{{n.picture}}'></div>
+	            <li  ng-repeat='n in list["<%= id%>"] | filter:sChat track by $index'  >
+		            <a href='#' class="autoclickid{{n._id}}" ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
+			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{n.picture}}'></div>
 			            <div class='fordetail'>
+                    {{n.gid}}
 				            <div class='hername'>{{n.name}}</div>
 				            <div class='online-state'>
-					            <div class='online{{n._id}} mystate iamoffline'></div><span class='online_text{{n._id}}'></span>
-<!-- 					            <div class='mystate iamalway'></div><span>ออนไลน์แต่กำลังทำบางอย่าง</span> -->
-				            </div>
+                    <div dynamic="n.online"></div>
+                    <div ng-if="!n.status_friend">  เพิ่มเพื่อน </div>
+                  </div>
 			            </div>
 		            </a>
 	            </li>
@@ -206,12 +224,13 @@
         <div id="tab-content2" class="tab-content">
             <ul class='thisismygroup'>
 	            <li ng-repeat='g in list_group track by $index'>
-               <a href='#' ng-click="register_popup(g.groupid,'',g.name_group,'uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
-			            <div class='av'><img ng-src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
+               <a href='#' class="autoclickid{{g.groupid}}" ng-click="register_popup(g.groupid,'',g.name_group,'/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
+			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
 			            <div class='fordetail'>
+
 				            <div class='hername'>{{g.name_group}}</div>
 				            <div class='whois_ingroup' >
-					            <img ng-repeat='m in g.user | limitTo:5 track by $index' ng-src='https://im.bazarn.com/90x90/{{m.picture}}'>
+					            <img ng-repeat='m in g.user | limitTo:5 track by $index' ng-src='http://27.254.81.103:7001/90x90/{{m.picture}}'>
 					            <span>{{check_num(g.user.length)}}</span>
 				            </div>
 			            </div>
@@ -228,8 +247,9 @@
             <ul class='thisismyfriend'>
 	            <li ng-repeat="a in activities track by $index">
 		            <a href='#' ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p')">
-			            <div class='av'><img ng-src='https://im.bazarn.com/90x90/{{a.picture}}'></div>
+			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{a.picture}}'></div>
 			            <div class='fordetail'>
+                    {{a.gid}}
 				            <div class='hername'>{{a.name}}</div>
 				            <div class='online-state'>
 					            <i class="fa fa-user"></i> <div class='online{{a._id}} mystate '></div><span class='online_text{{a._id}} online_text'></span>
@@ -242,7 +262,7 @@
         </div>
     </li>
 </ul>
-<div class='searchtab' contenteditable="true" data-placeholder='ค้นหา'></div>
+<div class='searchtab' ng-model="sChat" contenteditable="true" data-placeholder='ค้นหา'></div>
 </div>
 <div class='minsearch'><i class="fa fa-search-plus"></i>
 	<div class='labal'>2</div>
@@ -263,12 +283,7 @@
         </div>
     </div>
 </div>
-{{x1[a]}}
-<div ng-init="x1 = []">
-<div ng-repeat="c in data_chat">
-  <div>{{c.id}}</div>
 
-</div>
 
   </body>
 </html>
@@ -285,466 +300,25 @@
  <script src="/js/jquery.magnific-popup.min.js"></script>
 <!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.2/angular.js"></script> -->
 <!--    <script src="/js/ngtimeago.js"></script>  -->
-
+<script src="/js/moment.js"></script>
+<script src="/js/livestamp.min.js"></script>
 <script src="/js/angular.min.js"></script>
 <script src="/js/angular-contenteditable.js"></script>
 <script src="/bower_components/ng-timeago/ngtimeago.js"></script>
 <script src="/bower_components/angular-timeago/src/timeAgo.js"></script>
+<!-- <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script> -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/chat.js"></script>
 
 <!-- <script src="/js/dropzone.js"></script> -->
+<script>
 
+</script>
 
     <script>
-	    	var app = angular.module('app', ['yaru22.angular-timeago','contenteditable']);
-        app.directive('onFinishRender', function ($timeout) {
-			    return {
-			        restrict: 'A',
-			        link: function (scope, element, attr) {
-			            if (scope.$last === true) {
-			                $timeout(function () {
-			                    scope.$emit('ngRepeatFinished');
-			                });
-			            }
-			        }
-			    }
-			});
-      app.directive('myEnter', function () {
-        // call html tag my-enter="....()"
-          return function (scope, element, attrs) {
-              element.bind("keydown keypress", function (event) {
-                  if(event.which === 13) {
-                      scope.$apply(function (){
-                          scope.$eval(attrs.myEnter);
-                      });
 
-                      event.preventDefault();
-                  }
-              });
-          };
-      });
-      app.directive('enterSubmit', function () {
-        return {
-          restrict: 'A',
-          link: function (scope, elem, attrs) {
-
-            elem.bind('keydown', function(event) {
-              var code = event.keyCode || event.which;
-
-              if (code === 13) {
-                if (!event.shiftKey) {
-                  event.preventDefault();
-                  scope.$apply(attrs.enterSubmit);
-                }
-              }
-            });
-          }
-        }
-      });
-      app.directive('dynamic', function ($compile) {
-        return {
-          restrict: 'A',
-          replace: true,
-          link: function (scope, ele, attrs) {
-            scope.$watch(attrs.dynamic, function(html) {
-              ele.html(html);
-              $compile(ele.contents())(scope);
-            });
-          }
-        };
-      });
-     app.directive('compile', ['$compile', function ($compile) {
-			  return function(scope, element, attrs) {
-			    scope.$watch(
-			      function(scope) {
-			        return scope.$eval(attrs.compile);
-			      },
-			      function(value) {
-			        element.html(value);
-			        $compile(element.contents())(scope);
-			      }
-			   )};
-			  }]);
-			app.controller('chat', function($scope,$http,$compile) {
-        $scope.test3 = ['a','b','c','d'];
-        $scope.lines = [{
-       text: 'res1'},
-   {
-       text: 'res2'}];
-
-
-        session_id = '56e25471f0d71df75d8b4567';
-				$http({
-				  method: 'POST',
-				  data:{id:'56e25471f0d71df75d8b4567'},
-				  url: '/chat/chatgroup'
-				}).then(function successCallback(response) {
-					$scope.list_group = response.data;
-
-				}, function errorCallback(response) {});
-
-				$http({
-				  method: 'POST',
-				  data:{id:session_id},
-				  url: '/chat/chatActivities'
-				}).then(function successCallback(response) {
-					$scope.activities = response.data;
-
-				}, function errorCallback(response) {});
-				$http({
-				  method: 'POST',
-				  data:{id:session_id},
-				  url: '/chat/chatlist'
-				}).then(function successCallback(response) {
-          $scope.list = response.data
-          console.log(response.data);
-
-					dataonline = [];
-					$.each(response.data, function( index, value ) {
-						dataonline.push(value._id);
-					});
-					$http({
-					  method: 'POST',
-					  data:dataonline,
-					  url: '/chat/useronline'
-					}).then(function successCallback(response) {
-            $.each(dataonline, function( index, data_online ) {
-
-              $('.online'+data_online).addClass('iamoffline');
-              $('.online_text'+data_online).html('ออฟไลน์');
-            });
-						$.each(response.data, function( index, data_online ) {
-
-							if(data_online.status_online == 1){
-								$('.online'+data_online._id).addClass('iamonline');
-								$('.online_text'+data_online._id).html('ออนไลน์');
-							}else if(data_online.status_online == 2){
-								$('.online'+data_online._id).addClass('iamalway');
-								$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
-							}else{
-								$('.online'+data_online._id).addClass('iamoffline');
-								$('.online_text'+data_online._id).html('ออฟไลน์');
-							}
-						});
-
-					})
-				});
-			Array.prototype.remove = function() {
-		    var what, a = arguments, L = a.length, ax;
-		    while (L && this.length) {
-		        what = a[--L];
-		        while ((ax = this.indexOf(what)) !== -1) {
-		            this.splice(ax, 1);
-		        }
-		    }
-		    return this;
-			};
-
-
-
-
-			var total_popups = 0;
-			var popups = [];
-			var data_chat = [];
-			var chat = [];
-
-      $scope.sendChatMessage = function(gid,id){
-        console.log(gid);
-        $http({
-          method: 'POST',
-          data:{gid:gid,user_id:session_id,message:$scope.message[id]},
-          url: '/chat/sendChatMessage'
-        }).then(function successCallback(response) {
-          $scope.message[id] = '';
-          console.log(response);
-
-        }, function errorCallback(response) {});
-
-      }
-      $scope.loadMessageChat = function(gid){
-        $http({
-            method: 'POST',
-            data:{id:session_id,friend_id:user_id},
-            url: '/chat/chatMessage'
-          }).then(function successCallback(response) {
-
-
-          }, function errorCallback(response) {});
-          // function updateChat(){
-          //   var ck = true;
-          //   $.each($scope.data_chat,function(index,data){
-          //       if(data.gid == gid){
-          //         ck = false;
-          //       }
-          //   })
-          // }
-      }
-      $scope.loadListChat = function(){
-        $http({
-				  method: 'POST',
-				  data:{id:session_id},
-				  url: '/chat/chatlist'
-				}).then(function successCallback(response) {
-          $scope.list = response.data
-          console.log(response.data);
-					dataonline = [];
-					$.each(response.data, function( index, value ) {
-						dataonline.push(value._id);
-					});
-					$http({
-					  method: 'POST',
-					  data:dataonline,
-					  url: '/chat/useronline'
-					}).then(function successCallback(response) {
-            $.each(dataonline, function( index, data_online ) {
-
-              $('.online'+data_online).addClass('iamoffline');
-              $('.online_text'+data_online).html('ออฟไลน์');
-            });
-						$.each(response.data, function( index, data_online ) {
-
-							if(data_online.status_online == 1){
-								$('.online'+data_online._id).addClass('iamonline');
-								$('.online_text'+data_online._id).html('ออนไลน์');
-							}else if(data_online.status_online == 2){
-								$('.online'+data_online._id).addClass('iamalway');
-								$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
-							}else{
-								$('.online'+data_online._id).addClass('iamoffline');
-								$('.online_text'+data_online._id).html('ออฟไลน์');
-							}
-						});
-
-					})
-				});
-      }
-			$scope.register_popup = function(id,user_id,name,picture,type){
-
-          for(var iii = 0; iii < popups.length; iii++){
-			      if(id == popups[iii]){
-			        Array.remove1(popups, iii);
-              popups.unshift(user_id);
-
-		          calculate_popups();
-              return;
-			      }
-
-			    }
-          if(type == 'p'){
-            $http({
-      				  method: 'POST',
-      				  data:{id:session_id,friend_id:user_id},
-      				  url: '/chat/chatMessage'
-      				}).then(function successCallback(response) {
-
-                if($scope.data_chat != null){
-                  if(id == null){
-                    chat = {gid:id,id:user_id,name:name,picture:picture,chat:response.data}
-                    insert_array(user_id,chat);
-                    addActivities(session_id,user_id,function(result){
-                      $scope.loadListChat();
-                    });
-                  }else{
-                    chat = {gid:id,id:user_id,name:name,picture:picture,chat:response.data}
-        						insert_array(user_id,chat);
-                  }
-
-      					}else{
-                  if(id == null){
-                    console.log('start');
-                    chat = [{gid:id,id:user_id,name:name,picture:picture,chat:response.data}]
-                    $scope.data_chat = chat;
-                    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                      calculate_popups();
-                    });
-                    addActivities(session_id,user_id,function(result){
-                      $scope.loadListChat();
-                    })
-                  }else{
-                    chat = [{gid:id,id:user_id,name:name,picture:picture,chat:response.data}]
-                    $scope.data_chat = chat;
-                    console.log($scope.data_chat)
-                    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                      calculate_popups();
-                    });
-                  }
-                }
-      				}, function errorCallback(response) {});
-          }else{
-            $http({
-              method: 'POST',
-              data:{id:session_id,group_id:id},
-              url: '/chat/chatGroupMessage'
-            }).then(function successCallback(response) {
-              if($scope.data_chat != null){
-                chat = {id:id,name:name,picture:picture,chat:response.data}
-                insert_array(id,chat);
-              }else{
-                chat = [{id:id,name:name,picture:picture,chat:response.data}]
-                $scope.data_chat = chat;
-                $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                  calculate_popups();
-                });
-              }
-              //$scope.list_group = response.data;
-            }, function errorCallback(response) {});
-
-          }
-
-				popups.unshift(user_id);
-
-
-
-
-
-
-			}
-
-
-			Array.remove1 = function(array, from, to) {
-
-				var rest = array.slice((to || from) + 1 || array.length);
-	            array.length = from < 0 ? array.length + from : from;
-	            return array.push.apply(array, rest);
-        	};
-      function addActivities(session_id,user_id,callback){
-        $http({
-          method: 'POST',
-          data:{id:session_id,user_id:user_id},
-          url: '/chat/addActivities'
-        }).then(function successCallback(resGroup) {
-          callback(resGroup)
-        })
-      }
-			$scope.close_popup = function(id){
-
-
-
-					 for(var iii = 0; iii < popups.length; iii++){
-		                if(id == popups[iii]){
-			             		Array.remove1(popups, iii);
-			             		document.getElementById(id).style.display = "none";
-
-			             		calculate_popups();
-
-							return;
-	                }
-
-	            }
-
-
-	         }
-	        function insert_array(id,chat_insert){
-              var ck = true;
-			        $.each($scope.data_chat,function(index,data){
-				        if(data.id == id){
-					      ck = false;
-					    }
-			    	})
-					if(ck){
-            $scope.data_chat.push(chat_insert);
-						$scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-							calculate_popups();
-			    	});
-
-					}else{
-						calculate_popups();
-					}
-
-
-	        }
-	        function del_array(id){
-
-		        $.each($scope.data_chat,function(index,data){
-			       if(data.id == id){
-				       $scope.data_chat.splice(index,1);
-
-			       }
-
-		        })
-	        }
-			function display_popups(){
-
-		            var calRight = $('.chat-sidebar-sp').width();
-
-		            var right = 340;
-
-		            var iii = 0;
-		            for(iii; iii < total_popups; iii++)
-		            {
-
-		                if(popups[iii] != undefined)
-		                {
-
-
-			               	var element = document.getElementById(popups[iii]);
-
-		                    element.style.right = right + "px";
-		                    right = right + 340;
-		                    element.style.display = "block";
-		                }
-		            }
-
-		            for(var jjj = iii; jjj < popups.length; jjj++)
-		            {
-		                var element = document.getElementById(popups[jjj]);
-		                element.style.display = "none";
-		            }
-
-	        }
-			function calculate_popups(){
-
-		            var width = window.innerWidth;
-
-		            if(width < 540){
-		                total_popups = 0;
-		            }
-		            else{
-		                width = width - 320;
-
-		                total_popups = parseInt(width/340);
-		            }
-		            display_popups();
-
-
-
-        	}
-        	$scope.newDate = function(date){
-	        	console.log(new Date(1000 * date));
-	        	return new Date(1000 *date).toString();
-        	}
-			$scope.checkMesFriend = function(id){
-
-				if(session_id != id ){
-					return true;
-				}else{
-					return false;
-				}
-			}
-			$scope.checkMesMe = function(id){
-
-				if(session_id == id ){
-					return true;
-				}else{
-					return false;
-				}
-			}
-			$scope.check_num = function(num){
-				if(num > 5){
-					return '...และอีก '+(num - 5)+' คน';
-				}else{
-					return '';
-				}
-			}
-			window.addEventListener("resize", calculate_popups);
-			window.addEventListener("load", calculate_popups);
-
-		});
-
-
-
-
-
-			$('.dropup_stk').on('click', '> .dropup-opener', function(e) {
+    // $(document).ready(function(){$('.msgsc').scrollTop($('.msgsc')[0].scrollHeight);});
+	   $('.dropup_stk').on('click', '> .dropup-opener', function(e) {
 			    e.preventDefault();
 			    	$menu = $(this).siblings('.ddx-menu');
 				    if ($menu.hasClass('is-open')) {
@@ -879,7 +453,8 @@
 				    gallery:{enabled:true}
 				});
 			});
-		    //$('.msgsc').scrollTop($('.msgsc')[0].scrollHeight);
+
+
 
 	        $(document).on('click','.dd_cog', function(){
 		        $('.setting_list').slideToggle('fast');

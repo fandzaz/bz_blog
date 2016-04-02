@@ -10,6 +10,7 @@ module.exports = new function(){
 	   }
 	   return a;
 	}
+
 	this.getTime = function(){
 		var d = new Date();
 		return Math.floor(d.getTime()/1000);

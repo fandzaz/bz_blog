@@ -7,8 +7,12 @@ chat-sidebar  แบ่งเป็นเซต  มี 3 เซต คือ
 view port width > 1280  use widget
 view port width > 1281  > 1366  use fixed right width 70px
 view port width > 1366  use fixed right width 160px
-	
+
 */
+.chat_disbled{
+	cursor: default;
+    opacity: .5;
+}
 html {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -245,8 +249,8 @@ p.link a:hover {
   background-color: #522764;
 }
 */
-   
-    
+
+
 /*
 @media only screen and (max-width : 540px) {
     .chat-sidebar{display: none !important;}
@@ -254,7 +258,7 @@ p.link a:hover {
 }
 */
 /* END of Side Bar Chat */
-            
+
             .popup-box
             {
                 display: none;
@@ -266,7 +270,7 @@ p.link a:hover {
                 width: 320px;
                 border: 1px solid rgba(29, 49, 91, .3);
             }
-            
+
             .popup-box .popup-head
             {
                 background-color: #AF0606;
@@ -276,30 +280,30 @@ p.link a:hover {
                 font-size: 14px;
                 clear: both;
             }
-            
+
             .popup-box .popup-head .popup-head-left
             {
                 float: left;
             }
-            
+
             .popup-box .popup-head .popup-head-right
             {
                 float: right;
                 opacity: 0.5;
             }
-            
+
             .popup-box .popup-head .popup-head-right a
             {
                 text-decoration: none;
                 color: inherit;
             }
-            
+
             .popup-box .popup-messages
             {
                 height: 100%;
                 overflow-y: scroll;
             }
-/* START popup http://codepen.io/marcobiedermann/pen/rohwn?editors=1010*/            
+/* START popup http://codepen.io/marcobiedermann/pen/rohwn?editors=1010*/
 .chat-popup{
         width: 320px;
         position: fixed;
@@ -597,7 +601,7 @@ a[role="button"] {outline: none;}
 		}
 		.p12{padding: 12px;}
 
-		
+
 		.input_group{display:block; margin-bottom:15px; font-size:12px;padding-top:15px; border-top:1px solid #e5e5e5; margin-top:20px;}
 		.input_group label{display:block; font-weight:bold; margin-bottom:5px;}
 		.input_group .group_name{height:24px; padding:4px; border:1px solid #e5e5e5; width:80%; float:left;}
@@ -679,7 +683,7 @@ a[role="button"] {outline: none;}
 			white-space: nowrap;
 			margin-top:5px;
 		}
-		
+
 		.submit_button {
 			padding: 0 8px;
 			margin-left: 4px;
@@ -754,7 +758,7 @@ a[role="button"] {outline: none;}
 .posrel{position:relative;}
 .setting_list{margin:0px; padding:0px; list-style:none; background:#f9f9f9; min-width:160px; max-width:270px; box-shadow: 0px 0px 2px 0 rgba(0,0,0,0.2);
 	position:absolute; z-index: 999; top:calc(100% + 5px); margin-left:-6px; border:1px solid #ddd; text-align: left; font-size:14px; color:#555; display:none;
-	
+
 }
 .setting_list li{display:block; border-top:1px solid #ddd;}
 .setting_list li:first-child{border-top:0px;}
@@ -937,16 +941,7 @@ a[role="button"] {outline: none;}
     margin-top:-1px;
     z-index: 1;
 }
-    
+
 .emo-menu_close{position:relative; top:0px; font-weight:normal; color:#444; padding:0 5px; float:right;margin-right: 0px; background:rgba(0,0,0,0.1); text-decoration: none;}
 .emo-menu_close:hover{background:rgba(0,0,0,0.3); color:#222;  text-decoration: none;}
-.emo-menu_close:focus{outline: none;}    
-  
-    
-    
-    
-    
-    
-    
-    
-    
+.emo-menu_close:focus{outline: none;}

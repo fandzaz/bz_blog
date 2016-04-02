@@ -4,16 +4,23 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+
 async = require('async');
+
 db = require('./database/mongodb.js');
 chat_tool = require('./database/chat_tool.js');
 function_t = require('./database/function_tool.js');
-
+socket_io = require('./library/io.js');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var chat = require('./routes/chat');
 var app = express();
-db.initMongo()
+
+
+//db.initMongo()
+// io.on('connection', function(socket){
+//   console.log('a user connected');
+// });
 //db.getFullname();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

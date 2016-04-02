@@ -1,6 +1,5 @@
 module.exports = new function(){
 	var MongoClient = require('mongodb').MongoClient;
-
 	var dbmongo = '';
 	var dbm = ''
 	var ObjectID = require('mongodb').ObjectID;
