@@ -70,7 +70,7 @@ router.post('/sendChatMessage',function(req,res,next){
       post_time:function_t.getTime(),
       read_status:0,
       post_type:'text',
-      ip:'119.76.67.25',
+      ip:function_t.getIpv4(req.clientIp),
       shop_id:'',
       attr:'',
   });
@@ -83,17 +83,21 @@ router.post('/sendChatMessage',function(req,res,next){
         if(err){
           console.log(err);
         }
-
-        Group_member.findOneAndUpdate({group_id:db.ObjectId(gid)},{last_update:function_t.getTime()},function(err,member){
-
-        })
+        Group_member.findOneAndUpdate({group_id:db.ObjectId(gid)},{last_update:function_t.getTime()},function(err,member){})
       });
-      addGroup.content = message;
+      chat_tool.getUersOne(addGroup.user_id,function(data){
+          //addGroup.content = message;
+          //addGroup.picture = 'xfsdfsdf';
+          res.json({chat:addGroup,picture:data.picture});
+          console.log(addGroup);
+      });
 
-      res.json(addGroup);
+
+
 
     }
-    console.log(addGroup);
+
+
   })
 
 });
@@ -211,11 +215,7 @@ router.post('/chatMessage',function(req,res,next){
 });
 router.post('/chatActivities',function(req,res,next){
 	var session_id = req.body.id;
-	// users2 = [];
-	// group_data = [];
-	// json = []
-	// date_ac = [];
-	// shop_list = [];
+
   Shop.find({user_id:db.ObjectId(session_id)}).lean().exec(function(err,shopUser){
     var shoplist_ca = [];
     var shopname_ca = [];
@@ -226,46 +226,51 @@ router.post('/chatActivities',function(req,res,next){
       shopname_ca[row._id] = row.shop_name;
     });
     Group.find({shop_id:{$in:shoplist_ca},group_type:'p'}).sort({last_update: 'desc'}).lean().exec(function(err,groupShop){
-      console.log(groupShop);
-      var userlist_ca = [];
       var shoplistId_ca = [];
-      var grouplist_ca = [];
-      var datelist_ca = [];
       var id = '';
       if(groupShop.length != 0){
         var userFinal_ca = [];
         groupShop.forEach(function(ck,i){
           if(shopListId[ck.member[0]] == ck.member[0]){
-            userlist_ca.push(ck.member[1]);
-            shoplistId_ca[ck.member[1]] = shopListId[ck.shop_id];
-            grouplist_ca[ck.member[1]] = ck._id;
-            datelist_ca[ck.member[1]] = ck.last_update
             id = ck.member[1];
+            shop_name = shopname_ca[ck.shop_id];
           }else{
-            userlist_ca.push(ck.member[0]);
-            shoplistId_ca[ck.member[0]] = shopListId[ck.shop_id];
-            grouplist_ca[ck.member[0]] = ck._id;
-            datelist_ca[ck.member[0]] = ck.last_update;
-              id = ck.member[0];
+            id = ck.member[0];
+            shop_name = shopname_ca[ck.shop_id];
           }
           chat_tool.getUersOne(id,function(rsUser){
-            var data1 = {_id:rsUser._id,name:rsUser.name,shop_id:shoplistId_ca[rsUser._id],shop_name:shopname_ca[shoplistId_ca[rsUser._id]],gid:ck._id,picture:rsUser.picture,last_update:ck.last_update};
+            var data1 = {_id:rsUser._id,name:rsUser.name,shop_id:shopListId[ck.shop_id],shop_name:shopname_ca[ck.shop_id],gid:ck._id,picture:rsUser.picture,last_update:ck.last_update,status:'user'};
             userFinal_ca.push(data1);
             if(groupShop.length == (i+1)){
               chat_tool.findGroupGetWhere(session_id,'p','shop',function(resultShop){
+                console.log(resultShop);
                 var shopFinal = [];
                 resultShop.data.forEach(function(rsShop){
-                  var data2 = {_id:rsShop._id,name:rsShop.name,shop_id:rsShop._id,shop_name:rsShop.name,gid:resultShop.group[rsShop._id],picture:rsShop.picture,last_update:resultShop.last_update[rsShop._id]};
+                  var data2 = {_id:rsShop._id,user_id:rsUser._id,name:rsShop.name,shop_id:rsShop._id,shop_name:rsShop.name,gid:resultShop.group[rsShop._id],picture:rsShop.picture,last_update:resultShop.last_update[rsShop._id],status:'shop'};
                   shopFinal.push(data2);
                 });
                 json_ca = userFinal_ca.concat(shopFinal);
                 json_ca.sort(function(a, b){
-                  return b.date-a.date
+                  return b.last_update-a.last_update
                 });
                 res.json(json_ca);
               });
             }
           });
+        });
+      }else{
+        chat_tool.findGroupGetWhere(session_id,'p','shop',function(resultShop){
+          //console.log(resultShop);
+          var shopFinal = [];
+          resultShop.data.forEach(function(rsShop){
+            var data2 = {_id:rsShop._id,name:rsShop.name,shop_id:rsShop._id,shop_name:rsShop.name,gid:resultShop.group[rsShop._id],picture:rsShop.picture,last_update:resultShop.last_update[rsShop._id],status:'shop'};
+            shopFinal.push(data2);
+          });
+          //json_ca = userFinal_ca.concat(shopFinal);
+          shopFinal.sort(function(a, b){
+            return b.last_update-a.last_update
+          });
+          res.json(shopFinal);
         });
       }
     });
@@ -369,10 +374,13 @@ router.post('/chatgroup',function(req,res,next){
        var i = 0;
        group.forEach(function(g){
          chat_tool.getUser(g.member,function(resultUserGroup){
-           var dataGroup = {groupid:g._id,name_group:g.group_name,user:resultUserGroup}
+           var dataGroup = {groupid:g._id,name_group:g.group_name,user:resultUserGroup,last_update:g.last_update}
            data_group.unshift(dataGroup);
            i++;
            if(i === group.length){
+             data_group.sort(function(a, b){
+               return b.last_update-a.last_update
+             });
              res.json(data_group);
            }
          });

@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 async = require('async');
-
+var requestIp = require('request-ip');
 db = require('./database/mongodb.js');
 chat_tool = require('./database/chat_tool.js');
 function_t = require('./database/function_tool.js');
@@ -15,6 +15,12 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var chat = require('./routes/chat');
 var app = express();
+
+var ipMiddleware = function(req, res, next) {
+    var clientIp = requestIp.getClientIp(req);
+    next();
+};
+app.use(requestIp.mw())
 
 
 //db.initMongo()

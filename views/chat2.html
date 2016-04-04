@@ -1,8 +1,6 @@
-<?php
-     header("Access-Control-Allow-Origin: *");
-?>
+
 <!DOCTYPE html>
-<html lang="en" ng-app="app">
+<html lang="en" ng-app="app_chat">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,7 +17,10 @@
 
   </head>
 
-  <body ng-controller="chat" >
+  <body >
+    <div ng-controller="chat" >
+
+
         <div ng-init="session_id = '<%= id%>'">
         <button ng-click="load()">Load</button>
           {{session_id}}
@@ -42,14 +43,14 @@
 					<button  class='chat-popup-cc plus_friend'><i class="fa fa-user-plus"></i></button>
 					<div class='ichatwith'>
 						<div class='inchat'>
-							<div class='av'><img ng-src='https://im.bazarn.com/90x90/{{c.picture}}'></div>
+							<div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{c.picture}}'></div>
 							<div class='inchat-detail'>
 								<div class='hername'><a href='#'>{{c.name}}</a></div>
 							</div>
 						</div>
 					</div>
 					<div class='chatarea'>
-            <div class='evt_res ' ng-if="message_check[c.id]">Message Empty</div>
+            <div class='evt_res ' ng-if="message_check[c.gid]">Message Empty</div>
 						<div class='find_frined'>
 							<input type='text' class='input_friend' name='' value='' placeholder="ค้นหาเพื่อน">
 							<button  class='chat-popup-cp close_find_friend'><i class="fa fa-times"></i></button>
@@ -62,12 +63,12 @@
 							</ul>
 						</div>
 
-						<div class='msgsc boxchat{{c.id}}' >
+						<div class='msgsc boxchat{{c.gid}}' >
 							<div  ng-repeat="mes in c.chat  track by $index " on-finish-render="ngRepeatFinished">
 
 								<div ng-if="mes.post_type == 'text' ">
 									<div class='item-chat myfriend ' ng-if="checkMesFriend(mes.user_id)">
-											<div class='chat_av'><img ng-src='https://im.bazarn.com/90x90/{{mes.picture}}'></div>
+											<div class='chat_av'><img ng-src='http://27.254.81.103:7001/90x90/{{mes.picture}}'></div>
 											<div class='messages'>
 												<div class='bubble'>
 													<div ng-if="mes.attr">
@@ -79,12 +80,11 @@
 												</div>
                         <!-- {{mes.post_time * 1000 | timeAgo}} -->
 
-												<div class='msg_date' ></div>
+												<div class='msg_date' ><span dynamic="getTimeAgo(mes.post_time)"></div>
 												<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
 											</div>
 									</div>
-
-									<div class='item-chat itsme' ng-if="checkMesMe(mes.user_id)">
+                  <div class='item-chat itsme' ng-if="checkMesMe(mes.user_id)">
 										<div class='messages'>
 											<div class='bubble'>
 												<div ng-if="mes.attr">
@@ -101,7 +101,7 @@
 								</div>
 								<div ng-if="mes.post_type == 'image'">
 									<div class='item-chat myfriend' ng-if="checkMesFriend(mes.user_id)">
-										<div class='chat_av'><img ng-src='https://im.bazarn.com/90x90/{{c.picture}}'></div>
+										<div class='chat_av'><img ng-src='http://27.254.81.103:7001/{{c.picture}}'></div>
 										<div class='messages gal'>
 											<div class='img-chat' ng-repeat="pc in mes.content track by $index" >
 													<div class='img'>
@@ -110,7 +110,7 @@
 													</a>
 												</div>
 											</div>
-											<div class='msg_date'>{{mes.post_time * 1000 | timeAgo}}</div>
+											<div class='msg_date'><span dynamic="getTimeAgo(mes.post_time)"></div>
 											<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
 										</div>
 									</div>
@@ -138,10 +138,10 @@
 
 						<div class='chat_text_cv'>
               <!-- <div class='chat_text_input'  contenteditable="true" ng-model="message" data-placeholder='พิมพ์ข้อความ...'></div> -->
-                  <div class="loadMessage{{c.id}}"></div>
+                  <div class="loadMessage{{c.gid}}"></div>
 
                   <!-- <div class='chat_text_input' contenteditable="true" ng-model="message[c.id]"   enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div> -->
-                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.id]"  ng-paste="pasteHtml($event,c.id)" ng-keyup="focusInput(c.id)"  enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div>
+                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.gid]"  ng-paste="pasteHtml($event,c.gid)" ng-keyup="focusInput(c.gid)"  enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div>
 
             </div>
 					</div>
@@ -201,12 +201,11 @@
         <label for="tab1">เพื่อน</label>
         <div id="tab-content1" class="tab-content">
             <ul class='thisismyfriend'>
-	            <li  ng-repeat='n in list["<%= id%>"] | filter:sChat track by $index'  >
-		            <a href='#' class="autoclickid{{n._id}}" ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
+	            <li  ng-repeat='n in list["<%= id%>"] | filter:sChat track by $index'>
+		            <a href='#' class="autoclickid{{n.gid}}" ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{n.picture}}'></div>
 			            <div class='fordetail'>
-                    {{n.gid}}
-				            <div class='hername'>{{n.name}}</div>
+                    <div class='hername'>{{n.name}}</div>
 				            <div class='online-state'>
                     <div dynamic="n.online"></div>
                     <div ng-if="!n.status_friend">  เพิ่มเพื่อน </div>
@@ -224,7 +223,7 @@
         <div id="tab-content2" class="tab-content">
             <ul class='thisismygroup'>
 	            <li ng-repeat='g in list_group track by $index'>
-               <a href='#' class="autoclickid{{g.groupid}}" ng-click="register_popup(g.groupid,'',g.name_group,'/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
+               <a href='#' class="autoclickid{{g.groupid}}" ng-click="register_popup(g.groupid,'',g.name_group,'uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
 			            <div class='fordetail'>
 
@@ -246,13 +245,15 @@
         <div id="tab-content3" class="tab-content">
             <ul class='thisismyfriend'>
 	            <li ng-repeat="a in activities track by $index">
-		            <a href='#' ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p')">
+		            <a href='#' class="autoclickid{{a.gid}}" ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p')">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{a.picture}}'></div>
 			            <div class='fordetail'>
-                    {{a.gid}}
-				            <div class='hername'>{{a.name}}</div>
+
+                    <div class='hername'>{{a.name}}</div>
 				            <div class='online-state'>
-					            <i class="fa fa-user"></i> <div class='online{{a._id}} mystate '></div><span class='online_text{{a._id}} online_text'></span>
+					            <div ng-if="a.status == 'user'"><i class="fa fa-user"></i></div>
+                      <div ng-if="a.status == 'shop'"><i class="fa fa-shopping-cart"></i></div>
+                      ร้าน:{{a.shop_name}}<div dynamic="a.online"></div>
 				            </div>
 			            </div>
 		            </a>
@@ -284,7 +285,7 @@
     </div>
 </div>
 
-
+  </div>
   </body>
 </html>
 
@@ -304,8 +305,7 @@
 <script src="/js/livestamp.min.js"></script>
 <script src="/js/angular.min.js"></script>
 <script src="/js/angular-contenteditable.js"></script>
-<script src="/bower_components/ng-timeago/ngtimeago.js"></script>
-<script src="/bower_components/angular-timeago/src/timeAgo.js"></script>
+
 <!-- <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script> -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/chat.js"></script>

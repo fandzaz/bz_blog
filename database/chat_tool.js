@@ -4,7 +4,6 @@ module.exports = new function(){
 	var Shop = require('mongoose').model('shop');
 	var Friend = require('mongoose').model('friend');
 	this.getUser = function(data_array,callback){
-
 		Users.find({ _id: { $in: data_array } }).lean().exec(function(err,u){
 			data_user_tool = [];
 				u.forEach(function(un){

@@ -15,6 +15,16 @@ module.exports = new function(){
 		var d = new Date();
 		return Math.floor(d.getTime()/1000);
 	}
+	this.getIpv4 = function(ip){
+		if (ip.length < 15){
+       ip = ip;
+    }
+    else{
+       var nyIP = ip.slice(7);
+       ip = nyIP;
+    }
+		return ip;
+	}
 
 
 }
