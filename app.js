@@ -6,7 +6,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 async = require('async');
+var multer = require('multer');
 var requestIp = require('request-ip');
+var fs = require('fs');
 db = require('./database/mongodb.js');
 chat_tool = require('./database/chat_tool.js');
 function_t = require('./database/function_tool.js');
@@ -15,32 +17,30 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var chat = require('./routes/chat');
 var app = express();
-
+app.use(multer({ dest:'./uploads'}));
 var ipMiddleware = function(req, res, next) {
     var clientIp = requestIp.getClientIp(req);
     next();
 };
-app.use(requestIp.mw())
 
+app.use(requestIp.mw());
 
-//db.initMongo()
-// io.on('connection', function(socket){
-//   console.log('a user connected');
-// });
-//db.getFullname();
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine','html');
 app.engine('html',require('ejs').renderFile);
 //app.set('view engine', 'jade');
 
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 app.use('/', routes);

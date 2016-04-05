@@ -12,13 +12,31 @@ var ent = require('ent');
 entities = new Entities();
 var php = require('phpjs');
 /* GET home page. */
-router.get('/:id', function(req, res, next) {
+router.get('/user/:id', function(req, res, next) {
  	res.render('chat2',{id:req.params.id});
 });
 
 router.get('/master', function(req, res, next) {
 	res.render('chat3');
 });
+router.get('/uploads', function(req, res, next) {
+	res.render('upload');
+});
+router.get('/uploadsChat', function(req, res, next) {
+  var files = req.files.file;
+  console.log(files);
+  // if (Array.isArray(files)) {
+  //     // response with multiple files (old form may send multiple files)
+  //     console.log("Got " + files.length + " files");
+  // }
+  // else {
+  //     // dropzone will send multiple requests per default
+  //     console.log("Got one file");
+  // }
+  // res.status(204);
+  // res.send();
+});
+
 router.post('/addActivities',function(req,res,next){
   var user_id = req.body.user_id;
   var session_id = req.body.id;

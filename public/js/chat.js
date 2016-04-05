@@ -1,15 +1,5 @@
 var socket = io.connect();
 
-// $( document ).ready(function() {
-//   $('[contenteditable]').on('paste',function(e) {
-//     //alert('xxxx');
-//     e.preventDefault();
-//       var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-//       window.document.execCommand('insertText', false, text);
-//       //$('[contenteditable]').trigger('keyup');
-//
-//   });
-// });
 var app = angular.module('app_chat', ['contenteditable']);
 app.directive('onFinishRender', function ($timeout) {
     return {
@@ -123,13 +113,13 @@ $http({
     })
 
   }, function errorCallback(response) {});
-  $scope.list[session_id] = [];
+
   $http({
     method: 'POST',
     data:{id:session_id},
     url: '/chat/chatList1'
   }).then(function successCallback(response) {
-    $scope.list[session_id] = response.data
+    $scope.list = response.data
     dataonline = [];
     $.each(response.data, function( index, value ) {
       dataonline.push(value._id);
@@ -137,7 +127,7 @@ $http({
 
     userOnlines(dataonline,function(online){
       $.each(online,function(index,data){
-        $scope.list[session_id][index].online = data;
+        $scope.list[index].online = data;
       });
     });
   });
@@ -176,32 +166,70 @@ socket.on('getChat',function(data){
         angular.element('.autoclickid'+data.id).triggerHandler('click');
     }
   });
-  //console.log($scope.list_group.groupid+''+data.id);
-  // if($scope.list_group.groupid.indexOf(data.id) == '-1'){
-  //   updateChat1(data.data_chat.group_id,data.data_chat);
-  // }
-  // if($scope.list_group.groupid == data.id){
-  //   updateChat1(data.data_chat.group_id,data.data_chat);
-  // }
-  if(session_id == data.id){
-    console.log(data)
-    count = 0;
-    clearInterval(timer_server);
-    timer_server = setInterval(function(){
-         count++;
-         if(count == 2){
-           clearInterval(timer_server);
-           loadListChat(session_id);
-        }
+$.each($scope.list, function( index, list ) {
+    if(list.gid == data.gid && session_id != data.ids){
+      console.log(list.gid+" "+data.gid)
+      count = 0;
+      clearInterval(timer_server);
+      timer_server = setInterval(function(){
+           count++;
+           if(count == 2){
+             clearInterval(timer_server);
+             loadListChat(session_id);
+          }
 
-     }, 1000);
+       }, 1000);
 
-    loadListChat(session_id);
+      loadListChat(session_id);
 
-    updateChat1(data.data_chat.group_id,data.data_chat);
-    angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
+      updateChat1(data.data_chat.group_id,data.data_chat);
+      angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
 
-}
+    }
+
+  })
+  $.each($scope.activities, function( index, ac ) {
+    if(ac.gid == data.gid && session_id != data.ids){
+      //console.log(list.gid+" "+data.gid)
+      count = 0;
+      clearInterval(timer_server);
+      timer_server = setInterval(function(){
+           count++;
+           if(count == 2){
+             clearInterval(timer_server);
+             loadListChat(session_id);
+          }
+
+       }, 1000);
+
+      loadListChat(session_id);
+
+      updateChat1(data.data_chat.group_id,data.data_chat);
+      angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
+
+    }
+
+  })
+  console.log(session_id == data.id);
+//   if(session_id == data.id){
+//     console.log(data)
+//     count = 0;
+//     clearInterval(timer_server);
+//     timer_server = setInterval(function(){
+//          count++;
+//          if(count == 2){
+//            clearInterval(timer_server);
+//            loadListChat(session_id);
+//         }
+//
+//      }, 1000);
+//
+//     loadListChat(session_id);
+//
+//     updateChat1(data.data_chat.group_id,data.data_chat);
+//     angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
+//
+// }
 
 
 });
@@ -330,7 +358,7 @@ function loadListChat(id){
     url: '/chat/chatList1'
   }).then(function successCallback(response1) {
 
-    $scope.list[id] = response1.data
+    $scope.list = response1.data
 
     dataonline = [];
     $.each(response1.data, function( index, value ) {
@@ -338,12 +366,12 @@ function loadListChat(id){
     });
     userOnlines(dataonline,function(online){
       $.each(online,function(index,data){
-        $scope.list[session_id][index].online = data;
+        $scope.list[index].online = data;
       });
     });
   });
   }
-$scope.register_popup = function(id,user_id,name,picture,type){
+$scope.register_popup = function(id,user_id,name,picture,type,status){
 
     for(var iii = 0; iii < popups.length; iii++){
       if(id == popups[iii]){
@@ -358,7 +386,14 @@ $scope.register_popup = function(id,user_id,name,picture,type){
         return;
       }
     }
-
+    var status_list;
+    if(status == 'shop'){
+      status_list = 'shop';
+    }else if(status == 'user'){
+      status_list = 'user';
+    }else{
+      status_list = 'user';
+    }
     if(type == 'p'){
       $http({
           method: 'POST',
@@ -374,14 +409,15 @@ $scope.register_popup = function(id,user_id,name,picture,type){
           if($scope.data_chat != null){
             if(id == null){
               addActivities(session_id,user_id,function(result){
-                chat = {gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat}
+
+                chat = {gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list}
                 addPop(result.data._id+'');
                 insert_array(result.data._id,chat);
                 loadListChat(session_id);
               });
             }else{
               addPop(id);
-              chat = {gid:id,id:user_id,name:name,picture:picture,chat:messageChat}
+              chat = {gid:id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list}
 
               insert_array(id,chat);
 
@@ -390,7 +426,7 @@ $scope.register_popup = function(id,user_id,name,picture,type){
           }else{
             if(id == null){
               addActivities(session_id,user_id,function(result){
-                chat = [{gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat}];
+                chat = [{gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list}];
                 id = result.data._id;
                 addPop(id+'');
                 $scope.data_chat = chat;
@@ -404,7 +440,7 @@ $scope.register_popup = function(id,user_id,name,picture,type){
 
             }else{
               addPop(id+'');
-              chat = [{gid:id,id:user_id,name:name,picture:picture,chat:messageChat}]
+              chat = [{gid:id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list}]
               $scope.data_chat = chat;
 
               $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
@@ -430,12 +466,12 @@ $scope.register_popup = function(id,user_id,name,picture,type){
         }
         if($scope.data_chat != null){
           addPop(id);
-          chat = {gid:id,id:id,name:name,picture:picture,chat:messageChat}
+          chat = {gid:id,id:id,name:name,picture:picture,chat:messageChat,status:status_list}
           insert_array(id,chat);
 
         }else{
           addPop(id);
-          chat = [{gid:id,id:id,name:name,picture:picture,chat:messageChat}]
+          chat = [{gid:id,id:id,name:name,picture:picture,chat:messageChat,status:status_list}]
           $scope.data_chat = chat;
           $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
             calculate_popups();

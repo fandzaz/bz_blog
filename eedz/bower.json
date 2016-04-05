@@ -1,0 +1,24 @@
+{
+  "name": "express-ejs-dropzone",
+  "version": "0.0.1",
+  "authors": [
+    "Nick Nance <nance.nick@gmail.com>"
+  ],
+  "description": "File upload with dropzone",
+  "main": "app.js",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "dropzone": "^4.3.0"
+  }
+}
