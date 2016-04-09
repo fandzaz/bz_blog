@@ -27,33 +27,37 @@
 
         <div class="list" >
         <div ng-init = "message = []">
+        <div ng-init = "findFriendG = []">
         <div ng-init = "message_check = []">
 				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.gid}}">
 				<header></header>
 
-        <div class='name_head'><div class='name'>{{c.name}}</div> <button  class='chat-popup-xc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button></div>
+        <div class='name_head'><div class='name'>{{c.name}}</div>
+          <button  class='chat-popup-xc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button></div>
           <button  class='chat-popup-cc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button>
-					<button  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
+					<button ng-if="c.type == 'g'"  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
+            <!--  -->
 					    <ul class='setting_list'>
 						    <li><a href='javascript:void(0);' class='plus_friend'>เพิ่มเพื่อน</a></li>
-						    <li><a href='javascript:void(0);' class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
+						    <li ><a href='javascript:void(0);' class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
 						    <li><a href='javascript:void(0);' class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
 					    </ul>
 					</button>
-					<button  class='chat-popup-cc plus_friend'><i class="fa fa-user-plus"></i></button>
+					<button  class='chat-popup-cc plus_friend' data-id="{{c.gid}}"><i class="fa fa-user-plus"></i></button>
 					<div class='ichatwith'>
 						<div class='inchat'>
 							<div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{c.picture}}'></div>
 							<div class='inchat-detail'>
-								<div class='hername'><a href='#'>{{c.name}}</a></div>
+								<div class='hername'><a href='#'>{{c.name}} </a>{{c.shop_text}}</div>
 							</div>
 						</div>
 					</div>
+
 					<div class='chatarea'>
             <div class='evt_res ' ng-if="message_check[c.gid]">Message Empty</div>
-						<div class='find_frined'>
-							<input type='text' class='input_friend' name='' value='' placeholder="ค้นหาเพื่อน">
-							<button  class='chat-popup-cp close_find_friend'><i class="fa fa-times"></i></button>
+						<div class='find_frined findFriend{{c.gid}}'>
+							<input type='text' class='input_friend'  ng-model="findFriendG[c.gid]" ng-keyup="findFriend(c.gid)" name='' value='' placeholder="ค้นหาเพื่อน">
+							<button  class='chat-popup-cp close_find_friend' data-id="{{c.gid}}" ><i class="fa fa-times"></i></button>
 							<ul class='myfriendlist'>
 								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her namehis / her namehis / her name</div></a></li>
 								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
@@ -62,7 +66,7 @@
 								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
 							</ul>
 						</div>
-            {{c.status}}
+
 						<div class='msgsc boxchat{{c.gid}}' >
 							<div  ng-repeat="mes in c.chat  track by $index " on-finish-render="ngRepeatFinished">
 
@@ -102,12 +106,13 @@
 								</div>
 								<div ng-if="mes.post_type == 'image'">
 									<div class='item-chat myfriend' ng-if="checkMesFriend(mes.user_id)">
-										<div class='chat_av'><img ng-src='http://27.254.81.103:7001/{{c.picture}}'></div>
+                    <div class='chat_av' ng-if="c.status == 'shop'"><img ng-src='http://27.254.81.103:7001/90x90/{{c.picture}}'></div>
+                    <div class='chat_av' ng-if="c.status == 'user'"><img ng-src='http://27.254.81.103:7001/90x90/{{mes.picture}}'></div>
 										<div class='messages gal'>
 											<div class='img-chat' ng-repeat="pc in mes.content track by $index" >
 													<div class='img'>
-													<a href='http://27.254.81.103/{{pc}}'>
-														<img ng-src='http://27.254.81.103/{{pc}}'>
+													<a href='{{site}}/uploads/{{pc}}'>
+														<img ng-src='{{site}}/uploads/{{pc}}'>
 													</a>
 												</div>
 											</div>
@@ -117,10 +122,10 @@
 									</div>
 									<div class='item-chat itsme' ng-if="checkMesMe(mes.user_id)">
 										<div class='messages gal'>
-											<div class='img-chat' ng-repeat="pc in mes.content track by $index">
+											<div class='img-chat' ng-repeat="pc in mes.content track by $index" >
 												<div class='img'>
-													<a href='http://27.254.81.103/{{pc}}'>
-														<img ng-src='http://27.254.81.103/{{pc}}'>
+													<a href='{{site}}/uploads/{{pc}}'>
+														<img ng-src='{{site}}/uploads/{{pc}}'>
 													</a>
 												</div>
 											</div>
@@ -148,7 +153,7 @@
 					</div>
 
 					<div class='chat_control'>
-						<button class='box_ctrl upphoto'><i class="fa fa-camera-retro"></i></button>
+						<button class='box_ctrl upphoto' ng-click="sendChatPhoto(c.gid,c.id)"><i class="fa fa-camera-retro"></i></button>
 						<div class='dropup_emo'>
 						<button class='box_ctrl emoj dropup-opener'><i class="fa fa-smile-o"></i></button>
 							<div class="emo-menu emo_arr">
@@ -196,14 +201,14 @@
         </div>
 <div class='chat-sidebar-sp' id='chat-sidebar-sp'>
 	<button  class='xtabs-min'>&ndash;</button>
-<ul class="xtabs">
-    <li ng-init="list = []">
-        <input type="radio" name="tabs" id="tab1" checked />
+<ul class="xtabs" ng-init="statusFilter='user'">
+  <li ng-init="list = []">
+        <input type="radio" name="tabs" id="tab1" ng-model="statusFilter" value="user"  checked />
         <label for="tab1">เพื่อน</label>
         <div id="tab-content1" class="tab-content">
             <ul class='thisismyfriend'>
-	            <li  ng-repeat='n in list | filter:sChat track by $index'>
-		            <a href='#' class="autoclickid{{n.gid}}" ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
+	            <li  ng-repeat='n in list | filter:user track by $index'>
+                <a href='#' class="autoclickid{{n.gid}}" ng-click="register_popup(n.gid,n._id,n.name,n.picture,'p')">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{n.picture}}'></div>
 			            <div class='fordetail'>
                     <div class='hername'>{{n.name}}</div>
@@ -219,11 +224,11 @@
     </li>
        <li>
 
-        <input type="radio" name="tabs" id="tab2"  />
+        <input type="radio" name="tabs" id="tab2" ng-model="statusFilter" value="group" />
         <label for="tab2">กลุ่ม</label>
         <div id="tab-content2" class="tab-content">
             <ul class='thisismygroup'>
-	            <li ng-repeat='g in list_group track by $index'>
+	            <li ng-repeat='g in list_group | filter:group track by $index'>
                <a href='#' class="autoclickid{{g.groupid}}" ng-click="register_popup(g.groupid,'',g.name_group,'uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
 			            <div class='fordetail'>
@@ -241,13 +246,13 @@
         </div>
     </li>
     <li>
-        <input type="radio" name="tabs" id="tab3" />
+        <input type="radio" name="tabs" id="tab3" ng-model="statusFilter" value="activity"/>
         <label for="tab3">มีกิจกรรมร่วมกัน</label>
         <div id="tab-content3" class="tab-content">
             <ul class='thisismyfriend'>
-	            <li ng-repeat="a in activities track by $index">
+	            <li ng-repeat="a in activities | filter:activity track by $index">
 
-                <a href='#' class="autoclickid{{a.gid}}" ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p',a.status)">
+                <a href='#' class="autoclickid{{a.gid}}" ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p',a.status,a.shop_name)">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{a.picture}}'></div>
 			            <div class='fordetail'>
 
@@ -265,7 +270,10 @@
         </div>
     </li>
 </ul>
-<div class='searchtab' ng-model="sChat" contenteditable="true" data-placeholder='ค้นหา'></div>
+
+<div ng-if="statusFilter == 'user'" class='searchtab' ng-model="$parent.user" contenteditable="true" data-placeholder='ค้นหา'></div>
+<div ng-if="statusFilter == 'group'" class='searchtab' ng-model="$parent.group" contenteditable="true" data-placeholder='ค้นหา'></div>
+<div ng-if="statusFilter == 'activity'" class='searchtab' ng-model="$parent.activity" contenteditable="true" data-placeholder='ค้นหา'></div>
 </div>
 <div class='minsearch'><i class="fa fa-search-plus"></i>
 	<div class='labal'>2</div>
@@ -410,33 +418,43 @@
 				});
 			});
 
-			$(document).on('click','.upphoto',function() {
-
-				$('.fade').load('/chat/uploads',function(result){
-
-					$(".overlay, .bzn_dialog").css("opacity", 1);
-					$(".overlay").show();
-
-					var mdheight = $(".fade").height(); console.log(mdheight);
-					$(".overlay, .bzn_dialog").css("opacity", 0);
-					/*Remove inline styles*/
-					$(".overlay, .bzn_dialog").removeAttr("style");
-
-					/*Set min height to 90px after mdheight has been set*/
-					$(".bzn_dialog").css("min-height", "90px");
-					$(".overlay").show();
-
-					$(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
-
-					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "590"}, 600, function() {
-					/*When animation is done show inside content*/
-
-						$(".preload").empty();
-					    $(".fade").show();
-					    $("#dropzonex").dropzone({ url: "http://192.168.0.25:3000/chat/uploads" });
-					});
-				});
-			});
+			// $(document).on('click','.upphoto',function() {
+      //
+			// 	$('.fade').load('/chat/uploads',function(result){
+      //
+			// 		$(".overlay, .bzn_dialog").css("opacity", 1);
+			// 		$(".overlay").show();
+      //
+			// 		var mdheight = $(".fade").height(); console.log(mdheight);
+			// 		$(".overlay, .bzn_dialog").css("opacity", 0);
+			// 		/*Remove inline styles*/
+			// 		$(".overlay, .bzn_dialog").removeAttr("style");
+      //
+			// 		/*Set min height to 90px after mdheight has been set*/
+			// 		$(".bzn_dialog").css("min-height", "90px");
+			// 		$(".overlay").show();
+      //
+			// 		$(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
+      //
+			// 		$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "590"}, 600, function() {
+			// 		/*When animation is done show inside content*/
+      //
+			// 			$(".preload").empty();
+			// 		    $(".fade").show();
+			// 		    //$("#dropzonex").dropzone({ url: "/uploadChat",method:'post',uploadMultiple:true,maxFilesize:5,maxFiles: 12,paramName:'file',autoProcessQueue: true});
+      //           $("#dropzonex").dropzone({
+      //             url: site+"/chat/uploadChat",
+      //             params: { user_id: session_id,gid:nowGid },
+      //             maxFiles: 12,
+      //
+      //             accept: function(file, done) {
+      //               console.log(file);
+      //               done();
+      //             }
+      //           });
+			// 		});
+			// 	});
+			// });
 
 			/*Close dialog*/
 			$(document).on('click',".df_button, .dialog_close",function() {
@@ -480,10 +498,13 @@
 		   }
 	   });
 	   $(document).on('click','.plus_friend', function(){
-		   $('.find_frined').slideToggle('fast');
+       var id = $(this).data('id');
+       //console.log(id);
+		   $('.findFriend'+id).slideToggle('fast');
 	   });
 	   $(document).on('click','.close_find_friend', function(){
-		   $('.find_frined').slideToggle('fast');
+       var id = $(this).data('id');
+		   $('.findFriend'+id).slideToggle('fast');
 	   });
 
 	   $(document).on('click','.close_this_popup', function(){

@@ -17,6 +17,14 @@ module.exports = new function(){
 				callback(data_user_tool);
 		});
 	}
+	this.getUserByName = function(name,callback){
+		var patt = new RegExp('/^j/','i');
+
+		Users.where('first_name').regex(patt).lean().exec(function(err,result){
+		//	new RegExp('/^j/i')
+			callback(result);
+		});
+	}
 	this.getUersOne = function(user_id,callback){
 		var dataUserOne = [];
 		Users.findOne({_id:db.ObjectId(user_id)}).lean().exec(function(err,u){
@@ -61,6 +69,7 @@ module.exports = new function(){
 						resultShop.forEach(function(row_shop){
 							shop_fggw.push({_id:row_shop._id,name:row_shop.shop_name,picture:row_shop.shop_logo});
 						});
+
 						callback({data:shop_fggw,group:gid_fggw,last_update:date_fggw});
 					});
 				}else{
@@ -74,6 +83,8 @@ module.exports = new function(){
 					});
 				}
 
+			}else{
+				callback('');
 			}
 		});
 	}
@@ -111,17 +122,24 @@ module.exports = new function(){
 					ckFriend.push(f.user_id);
 				}
 			});
+
 			var status_friend = [];
 			ckFriend.forEach(function(f){
 				status_friend[f] = f;
 			});
 			var ckGFriend = [];
 			data_array.forEach(function(arr){
-				if(arr+'' == status_friend[arr]+''){
+				module.exports.check_ne
+				if(module.exports.check_ne(status_friend,arr)){
 					ckGFriend[arr] = true;
 				}else{
 					ckGFriend[arr] = false;
 				}
+				// if(arr+'' == status_friend[arr]+''){
+				// 	ckGFriend[arr] = true;
+				// }else{
+				// 	ckGFriend[arr] = false;
+				// }
 			});
 			callback(ckGFriend);
 		});
@@ -129,6 +147,7 @@ module.exports = new function(){
 	this.getUserChat = function(session_id,data_array,callback){ //session_id ส่งมาเพิ่อเช็คเพื่อน
 
 		module.exports.checkFriend(session_id,data_array,function(friend){
+
 			Users.find({ _id: { $in: data_array } }).lean().exec(function(err,u){
 				dataChat = [];
 				u.forEach(function(un){
@@ -147,11 +166,15 @@ module.exports = new function(){
 
 
 	}
+	// this.getFriendFindName = function(user_id,find){
+	//
+	// }
+
 	this.getFriend = function(session_id,array_check1,callback){
 
 		Friend.find({$or: [ { user_id:db.ObjectId(session_id) }, { user_id_res:db.ObjectId(session_id)}],status:1}).lean().exec(function(err,friend){
-			friendlist = [];
-			//console.log(friend);
+			var friendlist = [];
+
 			if(friend.length != 0){
 				friend.forEach(function(f){//start loop
 				 if(f.user_id == session_id){

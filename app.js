@@ -6,18 +6,54 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 async = require('async');
-var multer = require('multer');
+var multer  = require('multer')
 var requestIp = require('request-ip');
 var fs = require('fs');
 db = require('./database/mongodb.js');
 chat_tool = require('./database/chat_tool.js');
 function_t = require('./database/function_tool.js');
 socket_io = require('./library/io.js');
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var chat = require('./routes/chat');
+
 var app = express();
-app.use(multer({ dest:'./uploads'}));
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Cache-Control, Accept, Origin, X-Session-ID');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,HEAD,DELETE,TRACE,COPY,LOCK,MKCOL,MOVE,PROPFIND,PROPPATCH,UNLOCK,REPORT,MKACTIVITY,CHECKOUT,MERGE,M-SEARCH,NOTIFY,SUBSCRIBE,UNSUBSCRIBE,PATCH');
+    res.header('Access-Control-Allow-Credentials', 'false');
+    res.header('Access-Control-Max-Age', '1000');
+
+    next();
+}
+app.use(allowCrossDomain);
+libUpload = require('./library/upload.js');
+// var storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, './uploads/')
+//     },
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now()+'-'+file.originalname);
+//   }
+// })
+// console.log(libUpload.upload());
+// var upload = multer({storage:storage,limits: { files:3 }}).any();
+//
+// app.post('/uploadChat', function (req, res, next) {
+//   console.log(req.files);
+//   upload(req, res, function (err) {
+//
+//     if(err){
+//       console.log(err)
+//     }else{
+//       res.json(req.files);
+//     }
+//
+//   });
+//
+//  })
+// app.use(
+//   multer({ dest:'uploads',
+//         limits: { fileSize: 5000000 }
+// }));
 var ipMiddleware = function(req, res, next) {
     var clientIp = requestIp.getClientIp(req);
     next();
@@ -28,7 +64,9 @@ app.use(requestIp.mw());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine','html');
 app.engine('html',require('ejs').renderFile);
-//app.set('view engine', 'jade');
+
+
+
 
 
 // uncomment after placing your favicon in /public
@@ -38,11 +76,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-
+app.use('/uploads',  express.static(__dirname + '/uploads'));
+var routes = require('./routes/index');
+var users = require('./routes/users');
+var chat = require('./routes/chat');
 app.use('/', routes);
 app.use('/users', users);
 app.use('/chat', chat);

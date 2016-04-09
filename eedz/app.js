@@ -53,14 +53,15 @@ app.post('/uploads', function (req, res) {
     //console.log(req.files);
 
     var files = req.files.file;
-    // if (Array.isArray(files)) {
-    //     // response with multiple files (old form may send multiple files)
-    //     console.log("Got " + files.length + " files");
-    // }
-    // else {
-    //     // dropzone will send multiple requests per default
-    //     console.log("Got one file");
-    // }
+    if (Array.isArray(files)) {
+      console.log(files);
+        // response with multiple files (old form may send multiple files)
+        console.log("Got " + files.length + " files");
+    }
+    else {
+        // dropzone will send multiple requests per default
+        console.log("Got one file");
+    }
     res.status(204);
     res.send();
 });
