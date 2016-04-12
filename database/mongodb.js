@@ -13,8 +13,10 @@ module.exports = new function(){
 		group_type:String,
 		member:[],
 	  last_update:Number,
-		shop_id:Schema.Types.Mixed
+		shop_id:Schema.Types.Mixed,
+		pictureGroup:Schema.Types.Mixed,
 	},{ collection : 'Bzn_group'})
+
 	var group_member = mongoose.Schema({
 		user_id:Schema.Types.ObjectId,
 		group_id:Schema.Types.ObjectId,

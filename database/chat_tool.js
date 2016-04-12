@@ -5,7 +5,7 @@ module.exports = new function(){
 	var Friend = require('mongoose').model('friend');
 	this.getUser = function(data_array,callback){
 		Users.find({ _id: { $in: data_array } }).lean().exec(function(err,u){
-			data_user_tool = [];
+			var data_user_tool = [];
 				u.forEach(function(un){
 					if(un.avatar != null){
 						img = un.avatar
@@ -18,11 +18,16 @@ module.exports = new function(){
 		});
 	}
 	this.getUserByName = function(name,callback){
-		var patt = new RegExp('/^j/','i');
+		var patt = new RegExp(name,'i');
+		var data_user = [];
+		Users.find({first_name:patt}).lean().exec(function(err,result){
+			var listUser = [];
+			result.forEach(function(u){
+				listUser.push(u._id);
+			});
+			//console.log(listUser);
 
-		Users.where('first_name').regex(patt).lean().exec(function(err,result){
-		//	new RegExp('/^j/i')
-			callback(result);
+			callback(listUser);
 		});
 	}
 	this.getUersOne = function(user_id,callback){
@@ -112,6 +117,21 @@ module.exports = new function(){
 	//
 	// 	});
 	// }
+	this.checkFriendSingle = function(user_id,friend_id,callback){
+		Friend.find({$or: [ { user_id:db.ObjectId(user_id) }, { user_id_res:db.ObjectId(friend_id)}],status:1}).lean().exec(function(err,result){
+			if(result.length != 0){
+				callback({id:friend_id,status:true});
+			}else{
+				Friend.find({$or: [ { user_id:db.ObjectId(friend_id) }, { user_id_res:db.ObjectId(user_id)}],status:1}).lean().exec(function(err,result1){
+					if(result.length != 0){
+						callback({id:friend_id,status:true});
+					}else{
+						callback({id:friend_id,status:false});
+					}
+				})
+			}
+		});
+	}
 	this.checkFriend = function(user_id,data_array,callback){//data_array เพื่อนที่ต้องการเช็ค
 		Friend.find({$or: [ { user_id:db.ObjectId(user_id) }, { user_id_res:db.ObjectId(user_id)}],status:1}).lean().exec(function(err,result){
 			var ckFriend = [];
@@ -125,14 +145,16 @@ module.exports = new function(){
 
 			var status_friend = [];
 			ckFriend.forEach(function(f){
-				status_friend[f] = f;
+				//status_friend[f] = f;
+				status_friend.push(f);
 			});
 			var ckGFriend = [];
 			data_array.forEach(function(arr){
-				module.exports.check_ne
-				if(module.exports.check_ne(status_friend,arr)){
+				//console.log()
+				if(!module.exports.check_ne(status_friend,arr)){
 					ckGFriend[arr] = true;
 				}else{
+					console.log(arr);
 					ckGFriend[arr] = false;
 				}
 				// if(arr+'' == status_friend[arr]+''){
@@ -140,6 +162,34 @@ module.exports = new function(){
 				// }else{
 				// 	ckGFriend[arr] = false;
 				// }
+			});
+			callback(ckGFriend);
+		});
+	}
+	this.checkFriendGetID = function(user_id,data_array,callback){//data_array เพื่อนที่ต้องการเช็ค
+		Friend.find({$or: [ { user_id:db.ObjectId(user_id) }, { user_id_res:db.ObjectId(user_id)}],status:1}).lean().exec(function(err,result){
+			console.log(result);
+			var ckFriend = [];
+			result.forEach(function(f){
+				if(user_id == f.user_id){
+					ckFriend.push(f.user_id_res);
+				}else{
+					ckFriend.push(f.user_id);
+				}
+			});
+
+			var status_friend = [];
+			ckFriend.forEach(function(f){
+				status_friend.push(f);
+			});
+			var ckGFriend = [];
+			//console.log(status_friend);
+			status_friend.forEach(function(arr){
+				if(!module.exports.check_ne(data_array,arr)){
+					console.log(arr);
+					console.log('x');
+					ckGFriend.push(arr);
+				}
 			});
 			callback(ckGFriend);
 		});
@@ -201,6 +251,7 @@ module.exports = new function(){
 		if(simple != null){
 			simple.forEach(function(s){
 				if(s+'' == val+''){
+
 					check = false;
 				}
 			});

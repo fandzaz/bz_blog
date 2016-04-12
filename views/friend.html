@@ -1,0 +1,68 @@
+<!-- <input type='text' ng-model='test'> -->
+<div class="inner_gray clearfix" ng-model='test' >
+  <div class="inner_gray_text">
+    แก้ไขผู้มีส่วนร่วมการสนทนา
+  </div>
+  <div class="inner_gray_close_button">
+    <a href="#" class="dialog_close" role="button" title="Close">&times;</a>
+  </div>
+</div>
+
+<div class="inner_body" >
+
+  <div class="inner_body_content" >
+
+
+    <ul class='mygroupchat' ng-init="gid = '<%= gid%>'">
+      {{gid}}
+        <li ng-repeat="m in list_member_group" >
+            <div class='they_av'><img ng-src='http://27.254.81.103:7001/90x90/{{m.picture}}'></div>
+            <div class='they_name'>{{m.name}} <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div ng-if="m._id == session_id" class='they_action'><div class="df_button stay" ng-click="outFriend(gid,m._id)"  >ออกจากการสนทนา</div></div>
+            <div ng-if="m._id != session_id" class='they_action'><div class="df_button stay" ng-click="outFriend(gid,m._id)">ลบออก</div></div>
+        </li>
+
+        <!--
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li>
+        <li>
+            <div class='they_av'><img src='https://im.bazarn.com/676x676/media/product_56e25920f0d71dae628b4567_715432412.jpg'></div>
+            <div class='they_name'>นี่คือชื่อของฉัน <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><a href="#" class="df_button" role="button">ลบออก</a></div>
+        </li> -->
+    </ul>
+  </div>
+</div>

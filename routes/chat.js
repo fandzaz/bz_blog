@@ -12,6 +12,7 @@ var ent = require('ent');
 entities = new Entities();
 var php = require('phpjs');
 var upload = libUpload.upload();
+var uploadGroup = libUpload.uploadGroup();
 // var upload = multer({ dest: 'uploads/' }).array('file', 12);
 /* GET home page. */
 router.get('/user/:id', function(req, res, next) {
@@ -21,14 +22,65 @@ router.get('/user/:id', function(req, res, next) {
 router.get('/master', function(req, res, next) {
 	res.render('chat3');
 });
+router.get('/showFriend/:gid', function(req, res, next) {
+  res.render('friend',{gid:req.params.gid});
+});
+router.get('/setting/:gid', function(req, res, next) {
+  var gid = req.params.gid;
+  Group.findOne({_id:db.ObjectId(gid)}).lean().exec(function(err,group){
+    if(group.pictureGroup){
+      img = '/uploads/'+group.pictureGroup
+   }else{
+      img = 'http://27.254.81.103:7001/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg';
+    }
+    res.render('setting',{gid:group._id,group_name:group.group_name,picture:img});
+  });
+
+});
 router.get('/uploads', function(req, res, next) {
 	res.render('upload');
 });
+router.post('/uploadGroup', function(req, res, next) {
+  uploadGroup(req, res, function (err) {
+    var gid =  req.body.gid;
+    if(err){console.log(err)}
+    else{
+    //res.json(req.file);
+        Group.findOneAndUpdate({_id:db.ObjectId(gid)},{pictureGroup:req.file.filename},function(err,result){
+          res.json({_id:result._id,picture:'/uploads/'+req.file.filename});
+        });
+    }
+  })
+});
+router.post('/delUserGroup', function(req, res, next) {
+  var user_id = req.body.user_id;
+  var gid = req.body.gid;
+  var newUserGroup = [];
+  Group.findOne({_id:db.ObjectId(gid),member:db.ObjectId(user_id)}).lean().exec(function(err,resultGroup){
+    console.log(resultGroup);
+    if(resultGroup.member.length > 2){
+      resultGroup.member.forEach(function(m){
+        if(user_id != m){
+          newUserGroup.push(db.ObjectId(m));
+        }
+      });
+      Group.findOneAndUpdate({_id:db.ObjectId(gid)},{member:newUserGroup},function(err,result){
+        Group_member.find({ group_id:db.ObjectId(gid),user_id:db.ObjectId(user_id) }).remove().exec(function(err,del){
+          res.json(del);
+        });
+      })
+    }else{
+      res.json('not del');
+    }
+
+
+    console.log(newUserGroup);
+
+  });
+  //console.log(gid);
+});
 router.post('/uploadChat', function(req, res, next) {
   var img = [];
-
-
-
   upload(req, res, function (err) {
     var user_id = req.body.user_id;
     var gid_uc = req.body.gid;
@@ -61,30 +113,75 @@ router.post('/uploadChat', function(req, res, next) {
             Group_member.findOneAndUpdate({group_id:db.ObjectId(gid_uc)},{last_update:function_t.getTime()},function(err,member){})
           });
           chat_tool.getUersOne(addGroup.user_id,function(data){
-              //addGroup.content = message;
-
               res.json({chat:addGroup,picture:data.picture});
               console.log(addGroup);
           });
         }
       })
-      // addGroup.save(function(err){
-      //   if(err){
-      //     json(err);
-      //   }else{
-      //     res.json(addGroup);
-      //   }
-      // })
-
     }
-
+  });
+});
+router.post('/updateNameGroup',function(req,res,next){
+  var user_id = req.body.user_id;
+  var gid = req.body.gid;
+  var name = req.body.name;
+  Group.find({$and:[{_id:db.ObjectId(gid)},{member:db.ObjectId(user_id)}]}).lean().exec(function(err,checkGroup){
+    if(checkGroup.length != 0){
+      Group.findOneAndUpdate({_id:db.ObjectId(gid)},{group_name:name},function(err,group){
+        res.json(group)
+      });
+    }
+  });
+});
+router.post('/addGroup',function(req,res,next){
+  var id = req.body.id;
+  var friend_id = req.body.friend_id;
+  chat_tool.checkFriendSingle(id,friend_id,function(f){
+    if(f.status){
+      var group = new Group({
+        group_name:id+"-"+function_t.getTime(),
+        group_type:'g',
+        member:[db.ObjectId(id),db.ObjectId(friend_id)],
+        last_update:function_t.getTime(),
+        pictureGroup:''
+      });
+      group.save(function(err){
+        if(err){
+          console.log(err);
+        }else{
+          var group1 = Group_member({
+            user_id:db.ObjectId(id),
+            group_id:db.ObjectId(group._id),
+            join_date:function_t.getTime(),
+            last_update:function_t.getTime(),
+          });
+          var group2 = Group_member({
+            user_id:db.ObjectId(friend_id),
+            group_id:db.ObjectId(group._id),
+            join_date:function_t.getTime(),
+            last_update:function_t.getTime(),
+          });
+          group1.save();
+          group2.save();
+          res.json(group);
+        }
+      })
+    }
+    //res.json(f);
   });
 });
 router.post('/findFriend',function(req,res,next){
+  var session_id = req.body.id;
   var find = req.body.find;
-  console.log(find);
   chat_tool.getUserByName(find,function(result){
-    console.log(result)
+    chat_tool.checkFriendGetID(session_id,result,function(data){
+      //console.log(data);
+      chat_tool.getUser(data,function(user){
+        res.json(user);
+      });
+      //console.log(data)
+    });
+    //res.json(result);
   });
 });
 router.post('/addActivities',function(req,res,next){
@@ -157,7 +254,7 @@ router.post('/sendChatMessage',function(req,res,next){
           //addGroup.content = message;
 
           res.json({chat:addGroup,picture:data.picture});
-          console.log(addGroup);
+          //console.log(addGroup);
       });
 
 
@@ -299,7 +396,7 @@ router.post('/chatActivities',function(req,res,next){
         var userFinal_ca = [];
 
         groupShop.forEach(function(ck,i){
-          console.log(shopListId);
+
           if(!chat_tool.check_ne(checkShop,ck.member[0])){
             shop_name = shopname_ca[ck.shop_id];
             id = ck.member[1];
@@ -391,15 +488,20 @@ router.post('/chatgroup',function(req,res,next){
 
 
 	 Group.find({member:db.ObjectId(session_id),group_type:'g'}).sort({last_update: 'desc'}).lean().exec(function(err,group){
-     data_group = [];
-   	 users1 = [];
+     var data_group = [];
+   	 var users1 = [];
 		 if(err){
 			 console.log(err)
 		 }else{
        var i = 0;
        group.forEach(function(g){
          chat_tool.getUser(g.member,function(resultUserGroup){
-           var dataGroup = {groupid:g._id,name_group:g.group_name,user:resultUserGroup,last_update:g.last_update}
+           if(g.pictureGroup){
+             img = '/uploads/'+g.pictureGroup
+          }else{
+             img = 'http://27.254.81.103:7001/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg';
+           }
+           var dataGroup = {groupid:g._id,name_group:g.group_name,user:resultUserGroup,last_update:g.last_update,picture:img}
            data_group.unshift(dataGroup);
            i++;
            if(i === group.length){
@@ -421,7 +523,7 @@ router.get('/chatshop',function(req,res,next){
 });
 router.post('/chatList1', function(req, res, next) {
     var session_id1 = req.body.id;
-    console.log(session_id1);
+
     Group.find({member:db.ObjectId(session_id1),group_type:'p'}).sort({last_update: 'desc'}).lean().exec(function(err,group){//ดึงข้อมูลกลุ่ม
 
       var check_u1 = [];
@@ -429,7 +531,7 @@ router.post('/chatList1', function(req, res, next) {
       var gid = [];
       //users_list = [];
       if(group.length != 0){
-            console.log('1')
+
         group.forEach(function(ck){
           if(ck.member[0] == session_id1){
             check_u1.push(ck.member[1]);
@@ -444,10 +546,7 @@ router.post('/chatList1', function(req, res, next) {
 
         chat_tool.getUserChat(session_id1,check_u1,function(result_user){
           var users_list = [];
-            //console.log(result_user);
-          // chat_tool.checkFriend(session_id1,function(friend){
-          //   console.log(friend);
-          // });
+
           result_user.forEach(function(user_list){
             users_list.push({gid:gid[user_list._id],_id:user_list._id,name:user_list.name,picture:user_list.picture,status:user_list.status,date:date[user_list._id],status_friend:user_list.status_friend})
           });
@@ -456,14 +555,13 @@ router.post('/chatList1', function(req, res, next) {
           });
           //res.json(users_list);
             chat_tool.getFriend(session_id1,check_u1,function(f){
-              console.log(session_id1)
-              console.log(users_list);
+
               dataAlluser = [];
               f.forEach(function(fu){
                 dataAlluser.push({_id:fu._id,name:fu.name,picture:fu.picture,status_friend:true});
               });
               var alldatauser = users_list.concat(dataAlluser);
-              //console.log(users_list)
+
               res.json(alldatauser);
 
             })
@@ -471,7 +569,7 @@ router.post('/chatList1', function(req, res, next) {
 
         });
         }else{
-          console.log('2')
+
 
             chat_tool.getFriend(session_id1,check_u1,function(f){
               users_list = [];

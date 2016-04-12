@@ -20,7 +20,7 @@
   <body >
     <div ng-controller="chat" >
 
-
+        <button ng-click="sendMail()">SendMail</button>
         <div ng-init="session_id = '<%= id%>'">
         <button ng-click="load()">Load</button>
           {{session_id}}
@@ -29,6 +29,8 @@
         <div ng-init = "message = []">
         <div ng-init = "findFriendG = []">
         <div ng-init = "message_check = []">
+        <div ng-init = "friendFind = []">
+
 				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.gid}}">
 				<header></header>
 
@@ -39,11 +41,11 @@
             <!--  -->
 					    <ul class='setting_list'>
 						    <li><a href='javascript:void(0);' class='plus_friend'>เพิ่มเพื่อน</a></li>
-						    <li ><a href='javascript:void(0);' class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
-						    <li><a href='javascript:void(0);' class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
+						    <li ><a href='javascript:void(0);' ng-click="getSetting(c.gid)" class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
+						    <li><a href='javascript:void(0);' ng-click="getFriend(c.gid)" class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
 					    </ul>
 					</button>
-					<button  class='chat-popup-cc plus_friend' data-id="{{c.gid}}"><i class="fa fa-user-plus"></i></button>
+					<button ng-if="c.type == 'p'" class='chat-popup-cc plus_friend' data-id="{{c.gid}}"><i class="fa fa-user-plus"></i></button>
 					<div class='ichatwith'>
 						<div class='inchat'>
 							<div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{c.picture}}'></div>
@@ -53,17 +55,13 @@
 						</div>
 					</div>
 
-					<div class='chatarea'>
+					<div class='chatarea' >
             <div class='evt_res ' ng-if="message_check[c.gid]">Message Empty</div>
 						<div class='find_frined findFriend{{c.gid}}'>
 							<input type='text' class='input_friend'  ng-model="findFriendG[c.gid]" ng-keyup="findFriend(c.gid)" name='' value='' placeholder="ค้นหาเพื่อน">
 							<button  class='chat-popup-cp close_find_friend' data-id="{{c.gid}}" ><i class="fa fa-times"></i></button>
 							<ul class='myfriendlist'>
-								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her namehis / her namehis / her name</div></a></li>
-								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
-								<li><a href='#'><img src='https://im.bazarn.com/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'><div class='span'>his / her name</div></a></li>
+								<li ng-repeat="friend in friendFind[c.gid] | filter:findFriendG[c.gid] track by $index"><a href='#' ng-click="addGroup(friend._id)"><img src='http://27.254.81.103:7001/90x90/{{friend.picture}}'><div class='span'>{{friend.name}}</div></a></li>
 							</ul>
 						</div>
 
@@ -229,8 +227,8 @@
         <div id="tab-content2" class="tab-content">
             <ul class='thisismygroup'>
 	            <li ng-repeat='g in list_group | filter:group track by $index'>
-               <a href='#' class="autoclickid{{g.groupid}}" ng-click="register_popup(g.groupid,'',g.name_group,'uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg','g')">
-			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/uploads/avatar_56e273eff0d71dff138b4567_1668053170.jpg'></div>
+               <a href='#' class="autoclickid{{g.groupid}}" ng-click="register_popup(g.groupid,'',g.name_group,g.picture,'g')">
+			            <div class='av'><img ng-src='{{g.picture}}'></div>
 			            <div class='fordetail'>
 
 				            <div class='hername'>{{g.name_group}}</div>
@@ -279,7 +277,7 @@
 	<div class='labal'>2</div>
 </div>
 
-
+<div my-directive></div>
 
 
 
@@ -309,6 +307,7 @@
 
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.js"></script>
  <script src="/js/jquery.magnific-popup.min.js"></script>
+ <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
 
 <!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.2/angular.js"></script> -->
 <!--    <script src="/js/ngtimeago.js"></script>  -->
@@ -364,59 +363,59 @@
 				    }
 			});
 
-			$(document).on('click','.show-friend-ingroup',function() {
+			// $(document).on('click','.show-friend-ingroup',function() {
+      //
+			// 	$('.fade').load('/chat/showFriend',function(result){
+      //
+			// 		$(".overlay, .bzn_dialog").css("opacity", 1);
+			// 		$(".overlay").show();
+      //
+			// 		var mdheight = $(".fade").height(); console.log(mdheight);
+			// 		$(".overlay, .bzn_dialog").css("opacity", 0);
+			// 		/*Remove inline styles*/
+			// 		$(".overlay, .bzn_dialog").removeAttr("style");
+      //
+			// 		/*Set min height to 90px after mdheight has been set*/
+			// 		$(".bzn_dialog").css("min-height", "90px");
+			// 		$(".overlay").show();
+      //
+			// 		$(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
+      //
+			// 		$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
+			// 		/*When animation is done show inside content*/
+      //
+			// 			$(".preload").empty();
+			// 		    $(".fade").show();
+			// 		});
+			// 	});
+			// });
 
-				$('.fade').load('friend.html',function(result){
-
-					$(".overlay, .bzn_dialog").css("opacity", 1);
-					$(".overlay").show();
-
-					var mdheight = $(".fade").height(); console.log(mdheight);
-					$(".overlay, .bzn_dialog").css("opacity", 0);
-					/*Remove inline styles*/
-					$(".overlay, .bzn_dialog").removeAttr("style");
-
-					/*Set min height to 90px after mdheight has been set*/
-					$(".bzn_dialog").css("min-height", "90px");
-					$(".overlay").show();
-
-					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-
-					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
-					/*When animation is done show inside content*/
-
-						$(".preload").empty();
-					    $(".fade").show();
-					});
-				});
-			});
-
-			$(document).on('click','.show-group-setting',function() {
-
-				$('.fade').load('setting.html',function(result){
-
-					$(".overlay, .bzn_dialog").css("opacity", 1);
-					$(".overlay").show();
-
-					var mdheight = $(".fade").height(); console.log(mdheight);
-					$(".overlay, .bzn_dialog").css("opacity", 0);
-					/*Remove inline styles*/
-					$(".overlay, .bzn_dialog").removeAttr("style");
-
-					/*Set min height to 90px after mdheight has been set*/
-					$(".bzn_dialog").css("min-height", "90px");
-					$(".overlay").show();
-
-					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-
-					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
-					/*When animation is done show inside content*/
-
-						$(".preload").empty();
-					    $(".fade").show();
-					});
-				});
-			});
+			// $(document).on('click','.show-group-setting',function() {
+      //
+			// 	$('.fade').load('/chat/setting',function(result){
+      //
+			// 		$(".overlay, .bzn_dialog").css("opacity", 1);
+			// 		$(".overlay").show();
+      //
+			// 		var mdheight = $(".fade").height(); console.log(mdheight);
+			// 		$(".overlay, .bzn_dialog").css("opacity", 0);
+			// 		/*Remove inline styles*/
+			// 		$(".overlay, .bzn_dialog").removeAttr("style");
+      //
+			// 		/*Set min height to 90px after mdheight has been set*/
+			// 		$(".bzn_dialog").css("min-height", "90px");
+			// 		$(".overlay").show();
+      //
+			// 		$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
+      //
+			// 		$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
+			// 		/*When animation is done show inside content*/
+      //
+			// 			$(".preload").empty();
+			// 		    $(".fade").show();
+			// 		});
+			// 	});
+			// });
 
 			// $(document).on('click','.upphoto',function() {
       //
@@ -457,7 +456,7 @@
 			// });
 
 			/*Close dialog*/
-			$(document).on('click',".df_button, .dialog_close",function() {
+			$(document).on('click',".dialog_close",function() {
 				$(".overlay, .bzn_dialog, .fade").fadeOut("slow", function() {
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
@@ -554,7 +553,23 @@
 			$('.minsearch').slideToggle(300);
 		});
 
-
+    // $(function () {
+		//     $(".stay").click(function (e) {
+    //       console.log('xxxx');
+		//         //$(".bzn_dialog").hide();
+		//         $(this).find(".bzn_dialog").toggle();
+		//         var container = $(".stay");
+		// 	    if(container.has(e.target).length === 0){
+		// 		    e.preventDefault();
+		// 	    }
+		//     });
+		// });
+    // $(document).click(function (e) {
+    //     var container = $(".bzn_dialog > a");
+    //     if (!container.is(e.target) && container.has(e.target).length === 0) {
+    //         $(".bzn_dialog").hide();
+    //     }
+    // });
 
         //recalculate when window is loaded and also when window is resized.
 

@@ -14,7 +14,8 @@ app.directive('onFinishRender', function ($timeout) {
             }
         }
     }
-  });
+});
+
 
 app.directive('schrollBottom', function () {
     return {
@@ -112,6 +113,13 @@ Array.prototype.remove = function() {
 
 var timer_server;
 var time_client;
+socket.on('updateGroup',function(data){
+  $.each($scope.list_group,function(index,group){
+    if(group.groupid == data._id){
+      loadGroup(session_id);
+    }
+  })
+});
 socket.on('getChat',function(data){
 
 
@@ -129,7 +137,7 @@ socket.on('getChat',function(data){
   });
 $.each($scope.list, function( index, list ) {
     if(list.gid == data.gid && session_id != data.ids){
-      console.log('xxx');
+
       count = 0;
       clearInterval(timer_server);
       timer_server = setInterval(function(){
@@ -151,7 +159,7 @@ $.each($scope.list, function( index, list ) {
   })
   $.each($scope.activities, function( index, ac ) {
     if(ac.gid == data.gid && session_id != data.ids){
-      //console.log(list.gid+" "+data.gid)
+
       count = 0;
       clearInterval(timer_server);
       timer_server = setInterval(function(){
@@ -169,9 +177,10 @@ $.each($scope.list, function( index, list ) {
       angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
 
     }
-    if(session_id == data.ids){
-      loadActivities(session_id);
-    }
+    // if(session_id == data.ids){
+    //   console.log('xxx')
+    //   loadActivities(session_id);
+    // }
 
   })
 
@@ -208,6 +217,136 @@ function userOnlines(data_array,callback){
     callback(userOnline);
   });
 }
+$scope.sendMail = function(){
+  var data = [];
+  data[0] = {from:'fandzaz@gmail.com',
+              to:'jakkapong.kongkasri@hotmail.com',
+              subject:'Hello World',
+              html:'what the fix'
+  };
+  data[1] = {from:'fandzaz@gmail.com',
+              to:'june_4530@hotmail.com',
+              subject:'Hello World',
+              html:'what the fix'
+  };
+  data[2] = {from:'fandzaz@gmail.com',
+              to:'jakkapongkongkasri@gmail.com',
+              subject:'Hello World',
+              html:'what the fix'
+  };
+
+  console.log(data);
+  http_post('/mail/submitMuti',{mail:data},function(data){
+    console.log(data);
+  });
+}
+$scope.updateGroup = function(gid){
+  console.log(gid);
+  if($scope.group_name){
+
+    data = {user_id:session_id,gid:gid,name:$scope.group_name};
+    http_post('/chat/updateNameGroup',data,function(data){
+      socket.emit('updateGroup', data);
+      loadGroup(session_id);
+    });
+  }
+
+}
+function getMemberGroup(gid){
+  console.log($scope.list_group);
+  $.each($scope.list_group,function(index,data){
+    if(data.groupid == gid){
+      $scope.list_member_group = data.user;
+    }
+  });
+
+}
+$scope.outFriend = function(gid,user_id){
+  http_post('/chat/delUserGroup',{gid:gid,user_id:user_id},function(data){
+    loadGroup(session_id);
+    console.log($scope.list_member_group);
+    getMemberGroup(gid);
+  });
+}
+$scope.getFriend = function(gid){
+  getMemberGroup(gid)
+  $('.fade').load('/chat/showFriend/'+gid,function(result){
+
+    var compile = $compile($('.fade').html())($scope);
+    $('.fade').html(compile);
+    $(".overlay, .bzn_dialog").css("opacity", 1);
+    $(".overlay").show();
+
+    var mdheight = $(".fade").height(); console.log(mdheight);
+    $(".overlay, .bzn_dialog").css("opacity", 0);
+    /*Remove inline styles*/
+    $(".overlay, .bzn_dialog").removeAttr("style");
+
+    /*Set min height to 90px after mdheight has been set*/
+    $(".bzn_dialog").css("min-height", "90px");
+    $(".overlay").show();
+
+    $(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
+
+    $(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
+    /*When animation is done show inside content*/
+
+      $(".preload").empty();
+        $(".fade").show();
+
+    });
+  });
+}
+$scope.getSetting = function(gid){
+  $('.fade').load('/chat/setting/'+gid,function(result){
+
+    var compile = $compile($('.fade').html())($scope);
+    //
+    $('.fade').html(compile);
+    console.log($('.fade').html());
+    $(".overlay, .bzn_dialog").css("opacity", 1);
+    $(".overlay").show();
+
+    var mdheight = $(".fade").height(); console.log(mdheight);
+    $(".overlay, .bzn_dialog").css("opacity", 0);
+    /*Remove inline styles*/
+    $(".overlay, .bzn_dialog").removeAttr("style");
+
+    /*Set min height to 90px after mdheight has been set*/
+    $(".bzn_dialog").css("min-height", "90px");
+    $(".overlay").show();
+
+    $(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
+
+    $(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
+    /*When animation is done show inside content*/
+
+      $(".preload").empty();
+        $(".fade").show();
+
+    });
+  });
+
+
+}
+$scope.submitUpload = function(){
+  $('.uploadForm').ajaxSubmit({
+  			error: function(error) {
+  		        status('Error: ' + error.status);
+        },
+        success: function(data) {
+          $scope.imgGroup = data.picture;
+          socket.emit('updateGroup', data);
+          loadGroup(session_id);
+        }
+  		});
+
+
+  	return false;
+
+  //});
+}
+
 $scope.sendChatPhoto = function(gid,id){
   //nowGid = gid;
 
@@ -236,7 +375,7 @@ $scope.sendChatPhoto = function(gid,id){
             maxFiles: 12,
             maxFilesize: 5,
             success: function(file, response){
-                console.log(response.group_id);
+
                 response.chat.picture = response.picture;
                 data = {id:id,ids:session_id,gid:gid,data_chat:response.chat}
                 updateChat1(gid,response.chat);
@@ -313,19 +452,33 @@ socket.on('MessageLoad1',function(data){
 
 
 });
+function http_post(url,data,callback){
+  $http({
+      method: 'POST',
+      data:data,
+      url: url
+    }).then(function successCallback(response) {
+      callback(response.data);
+    });
+}
+$scope.addGroup = function(friend_id){
+  data = {id:session_id,friend_id:friend_id};
+  http_post('/chat/addGroup',data,function(data){
+    loadGroup(session_id);
+  })
+
+}
 $scope.findFriend = function(gid){
-  console.log($scope.findFriendG[gid]);
-  if($scope.findFriendG[gid].length <= 1){
-    $http({
-        method: 'POST',
-        data:{id:session_id,find:$scope.findFriendG[gid]},
-        url: '/chat/findFriend'
-      }).then(function successCallback(response) {
 
-        $scope.list_group = response.data;
+    if($scope.findFriendG[gid].length <= 2){
+      data = {id:session_id,find:$scope.findFriendG[gid]};
+      http_post('/chat/findFriend',data,function(data){
+          $scope.friendFind[gid] = data;
+      });
 
-      }, function errorCallback(response) {});
-  }
+    }
+
+
 }
 $scope.focusInput = function(id){
 
@@ -430,7 +583,7 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
           data:{id:session_id,friend_id:user_id,gid:id},
           url: '/chat/chatMessage'
         }).then(function successCallback(response) {
-          console.log(response.data);
+
           if(response.data == 'err'){
             messageChat = [];
           }else{
@@ -481,7 +634,7 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
               });
             }
           }
-          console.log($scope.data_chat);
+
         }, function errorCallback(response) {});
     }else{
       $http({

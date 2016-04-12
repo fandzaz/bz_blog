@@ -10,6 +10,9 @@ module.exports = function(server){
     socket.on('MessageLoad',function(data1){
       io.emit('MessageLoad1',data1);
     });
+    socket.on('updateGroup',function(data){
+      io.emit('updateGroup',data);
+    });
 
 
 

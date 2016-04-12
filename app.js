@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 async = require('async');
 var multer  = require('multer')
 var requestIp = require('request-ip');
+//var Mailgun = require('mailgun-js');
 var fs = require('fs');
 db = require('./database/mongodb.js');
 chat_tool = require('./database/chat_tool.js');
@@ -26,34 +27,7 @@ var allowCrossDomain = function(req, res, next) {
 }
 app.use(allowCrossDomain);
 libUpload = require('./library/upload.js');
-// var storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads/')
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, file.fieldname + '-' + Date.now()+'-'+file.originalname);
-//   }
-// })
-// console.log(libUpload.upload());
-// var upload = multer({storage:storage,limits: { files:3 }}).any();
-//
-// app.post('/uploadChat', function (req, res, next) {
-//   console.log(req.files);
-//   upload(req, res, function (err) {
-//
-//     if(err){
-//       console.log(err)
-//     }else{
-//       res.json(req.files);
-//     }
-//
-//   });
-//
-//  })
-// app.use(
-//   multer({ dest:'uploads',
-//         limits: { fileSize: 5000000 }
-// }));
+
 var ipMiddleware = function(req, res, next) {
     var clientIp = requestIp.getClientIp(req);
     next();
@@ -85,9 +59,12 @@ app.use('/uploads',  express.static(__dirname + '/uploads'));
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var chat = require('./routes/chat');
+var mail = require('./routes/mail');
+
 app.use('/', routes);
 app.use('/users', users);
 app.use('/chat', chat);
+app.use('/mail', mail);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

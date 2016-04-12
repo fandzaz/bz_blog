@@ -1,0 +1,29 @@
+
+<div class="inner_gray clearfix" >
+	<div class="inner_gray_text" >
+	    ตั้งค่ากลุ่มสนทนา
+	</div>
+	<div class="inner_gray_close_button">
+	    <a href="#" class="dialog_close" role="button" title="Close">&times;</a>
+	</div>
+</div>
+<div class="inner_body">
+	{{session_id}}{{xxx}}
+    <div class="inner_body_content p12">
+				<form method="post"  enctype="multipart/form-data" action="/chat/uploadGroup" class="uploadForm" >
+			    <div class='group_av_Upload' ng-init="imgGroup = '<%= picture%>'">
+							<input type="hidden" name="gid" value="<%= gid %>">
+				   		<img src='{{imgGroup}}'>
+				   		<input type='file' name="file" class='upload_av' onchange="angular.element(this).scope().submitUpload()" >
+
+			   </div>
+		 </form>
+		<div class='ex_upload'>คลิ๊กที่รูปภาพเพื่อเปลี่ยนโลโก้ของกลุ่ม</div>
+	    <div class='input_group'>
+		    <label>ชื่อกลุ่ม</label>
+				<div ng-init="group_name = '<%= group_name %>'">
+		    <input type='text' class='group_name' name='group_name' ng-model="group_name" placeholder="ตั้งชื่อกลุ่ม" >
+		    <button class='submit_button' ng-click="updateGroup('<%= gid %>')">อัพเดท</button>
+	   </div>
+    </div>
+</div>
