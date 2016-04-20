@@ -24,23 +24,25 @@
         <div ng-init="session_id = '<%= id%>'">
         <button ng-click="load()">Load</button>
           {{session_id}}
-
+          {{xxx()}}
+        Nav_notification:{{notification}}
         <div class="list" >
         <div ng-init = "message = []">
         <div ng-init = "findFriendG = []">
         <div ng-init = "message_check = []">
         <div ng-init = "friendFind = []">
-
+        <div ng-init = "lastRead = []">
 				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.gid}}">
+
 				<header></header>
 
         <div class='name_head'><div class='name'>{{c.name}}</div>
-          <button  class='chat-popup-xc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button></div>
+          <button  class='chat-popup-xc autocloseid{{c.gid}}' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button></div>
           <button  class='chat-popup-cc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button>
 					<button ng-if="c.type == 'g'"  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
             <!--  -->
 					    <ul class='setting_list'>
-						    <li><a href='javascript:void(0);' class='plus_friend'>เพิ่มเพื่อน</a></li>
+						    <li><a href='javascript:void(0);' ng-click="addFriendToGroup(c.gid)" class='plus_friend'>เพิ่มเพื่อน</a></li>
 						    <li ><a href='javascript:void(0);' ng-click="getSetting(c.gid)" class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
 						    <li><a href='javascript:void(0);' ng-click="getFriend(c.gid)" class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
 					    </ul>
@@ -58,10 +60,11 @@
 					<div class='chatarea' >
             <div class='evt_res ' ng-if="message_check[c.gid]">Message Empty</div>
 						<div class='find_frined findFriend{{c.gid}}'>
-							<input type='text' class='input_friend'  ng-model="findFriendG[c.gid]" ng-keyup="findFriend(c.gid)" name='' value='' placeholder="ค้นหาเพื่อน">
+							<input type='text' class='input_friend'  ng-model="findFriendG[c.gid]" ng-keyup="findFriend(c.gid)"  placeholder="ค้นหาเพื่อน">
 							<button  class='chat-popup-cp close_find_friend' data-id="{{c.gid}}" ><i class="fa fa-times"></i></button>
-							<ul class='myfriendlist'>
-								<li ng-repeat="friend in friendFind[c.gid] | filter:findFriendG[c.gid] track by $index"><a href='#' ng-click="addGroup(friend._id)"><img src='http://27.254.81.103:7001/90x90/{{friend.picture}}'><div class='span'>{{friend.name}}</div></a></li>
+
+							<ul class='myfriendlist friendlist{{c.gid}}'>
+								<li ng-repeat="friend in friendFind[c.gid] | filter:findFriendG[c.gid] track by $index " ><a href='#' ng-click="addGroup(c.id,friend._id)"><img src='http://27.254.81.103:7001/90x90/{{friend.picture}}'><div class='span'>{{friend.name}}</div></a></li>
 							</ul>
 						</div>
 
@@ -98,7 +101,7 @@
 												<span dynamic="mes.content"></span>
 											</div>
 											<div class='msg_date'><span dynamic="getTimeAgo(mes.post_time)"></div>
-											<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
+                      <div class='msg_is_read' ng-if="$last"><span dynamic="lastRead[c.gid]"> </div>
 										</div>
 									</div>
 								</div>
@@ -129,7 +132,7 @@
 											</div>
                       <!-- <span dynamic="getTimeAgo(mes.post_time)"> -->
 											<div class='msg_date'><span dynamic="getTimeAgo(mes.post_time)"></div>
-											<!-- <div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div> -->
+											<div class='msg_is_read' ng-if="$last"><span dynamic="lastRead[c.gid]"> </div>
 										</div>
 									</div>
 								</div>
@@ -144,8 +147,9 @@
               <!-- <div class='chat_text_input'  contenteditable="true" ng-model="message" data-placeholder='พิมพ์ข้อความ...'></div> -->
                   <div class="loadMessage{{c.gid}}"></div>
 
-                  <!-- <div class='chat_text_input' contenteditable="true" ng-model="message[c.id]"   enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div> -->
-                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.gid]"  ng-paste="pasteHtml($event,c.gid)" ng-keyup="focusInput(c.gid)"  enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div>
+                  <!-- <div class='chat_text_input' contenteditable="true" ng-model="message[c.id]"  ng-paste="pasteHtml($event,c.gid)" enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div> -->
+
+                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.gid]" ng-paste="pasteHtml($event,c.gid)"  ng-keyup="focusInput(c.gid)" ng-focus="checkRead(c.gid)"  enter-submit="sendChatMessage(c.gid,c.id)"   data-placeholder='พิมพ์ข้อความ...' ></div>
 
             </div>
 					</div>
@@ -317,6 +321,7 @@
 <script src="/js/angular-contenteditable.js"></script>
 <script src="/js/dropzone.js"></script>
 
+<script src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
 <!-- <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script> -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/chat.js"></script>
@@ -488,14 +493,14 @@
 
 	    });
 
-	   $(document).on('keyup','.input_friend', function(){
-		   var text = $('.input_friend').val();
-		   if(text.length > 0){
-			   $('.myfriendlist').css('display','block');
-		   }else{
-			   $('.myfriendlist').css('display','none');
-		   }
-	   });
+	  //  $(document).on('keyup','.input_friend', function(){
+		//    var text = $('.input_friend').val();
+		//    if(text.length > 0){
+		// 	   $('.myfriendlist').css('display','block');
+		//    }else{
+		// 	   $('.myfriendlist').css('display','none');
+		//    }
+	  //  });
 	   $(document).on('click','.plus_friend', function(){
        var id = $(this).data('id');
        //console.log(id);

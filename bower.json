@@ -21,6 +21,7 @@
     "angular-contenteditable": "^0.3.8",
     "angular-simple-contenteditable": "^0.0.3",
     "angular-timeago": "^0.2.5",
-    "ng-timeago": "^0.0.2"
+    "ng-timeago": "^0.0.2",
+    "angular-sanitize": "^1.5.5"
   }
 }

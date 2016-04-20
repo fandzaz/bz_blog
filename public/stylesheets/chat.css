@@ -522,7 +522,7 @@ button.chat-popup-cp:focus{outline: none;}
 .chatarea .itsme .msg_is_read i{margin-right:5px;}
 .chatarea .itsme .msg_is_read span{margin-left:5px;}
 
-.chatarea .itsme .img-chat{width:48%; display:inline-block; border:1px solid #ccc; border-radius: 5px 5px; overflow:hidden; position: relative;}
+.chatarea .itsme .img-chat{width:48%; display:inline-block; border:1px solid #ccc; border-radius: 5px 5px; overflow:hidden; position: relative;float:right;}
 .chatarea .itsme .img-chat::before{
 	content: "";
 	display: block;

@@ -2,22 +2,29 @@
      header("Access-Control-Allow-Origin: *");
 ?>
 <!DOCTYPE html>
-<html lang="en" ng-app="app">
+<div id="App2" ng-app="app_test">
+  <div ng-controller="chatx">
+  ttt  {{test}}
+  </div>
+</div>
+<html lang="en" id="App1" ng-app="app_chat">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chat Template</title>
-    
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
      <link href="/stylesheets/normalize.css" rel="stylesheet">
     <link href="/stylesheets/page.css" rel="stylesheet">
     <link href="/stylesheets/chat.css" rel="stylesheet">
-  
+
     <link href="/stylesheets/magnific-popup.css" rel="stylesheet">
     <link href="/stylesheets/dropzone.css" rel="stylesheet">
   </head>
   <body ng-controller="chat">
+    xxx{{site}}
+
 	  <ul>
 		  <li>mini session chat ......... DONE</li>
 		  <li>add friend will be create new group | auto complete their friend ......... DONE</li>
@@ -28,25 +35,25 @@
 		  <li>Emoticon ......... DONE</li>
 		  <li>Quick Emoticon ......... DONE</li>
 	  </ul>
-	  
+
 	    <div class="chat-sidebar">
             <div class="sidebar-name">
                 <!-- Pass username and display name to register popup -->
-                
+
                 <a href="javascript:void(0);" ng-click="register_popup('narayan-prusty', 'Narayan Prusty')">
                     <img width="30" height="30" src="https://im.bazarn.com/45x45/uploads/avatar_56e45a9af0d71d636d8b4567_114263336.jpg" />
                     <span>Narayan Prusty</span>
                 </a>
             </div>
             <div class="sidebar-name">
-	           
+
                 <a href="javascript:void(0);" ng-click="register_popup('qnimate-prusty', 'NarayanQNimatePrusty')">
                     <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/shoplogo_56e3c109f0d71d097a8b4567_53404480.jpeg" />
                     <span>QNimate</span>
                 </a>
             </div>
             <div class="sidebar-name">
-	            
+
                 <a href="javascript:void(0);" ng-click="register_popup('QScutter-prusty', 'Narayan qscutter')">
                     <img width="30" height="30" src="https://im.bazarn.com/90x90/uploads/shoplogo_56e2666af0d71dc0758b4567_1383634472.jpeg" />
                     <span>QScutter</span>
@@ -247,7 +254,7 @@
             </ul>
         </div>
     </li>
-  
+
     <li>
         <input type="radio" name="tabs" id="tab2" checked />
         <label for="tab2">กลุ่ม</label>
@@ -509,13 +516,13 @@
         </div>
     </li>
 </ul>
-<div class='searchtab' contenteditable="true" data-placeholder='ค้นหา'></div>        
+<div class='searchtab' contenteditable="true" data-placeholder='ค้นหา'></div>
 </div>
 <div class='minsearch'><i class="fa fa-search-plus"></i>
 	<div class='labal'>2</div>
 </div>
 
-<?php include('master_chat.php');?>	
+<?php include('master_chat.php');?>
 <div style="clear: both"></div></div><div class="popup-messages"></div></div>
 
 
@@ -523,193 +530,205 @@
     <div class="bzn_dialog" style="min-height: 90px;">
 	    <div class='preload'></div>
         <div class="fade">
-	        
+
         </div>
     </div>
 </div>
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.js"></script>
 <script src="/js/jquery.magnific-popup.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+<!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.2/angular.js"></script> -->
+<!--    <script src="/js/ngtimeago.js"></script>  -->
+<script src="/js/moment.js"></script>
+<script src="/js/livestamp.min.js"></script>
 <script src="/js/angular.min.js"></script>
+<script src="/js/angular-contenteditable.js"></script>
+<script src="/js/dropzone.js"></script>
+
+<!-- <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script> -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/chat.js"></script>
 <script>
-	    	// .dropup
-	    	angular.module('app', [])
-		.controller('chat', function($scope,$http,$compile) {
-			$('.include').load("http://localhost:3000/chat/master_chat.html");
-			$scope.title = 'FFFF';
-						
-			$http({
-			  method: 'POST',
-			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatgroup'
-			}).then(function successCallback(response) {
-				$scope.list_group = response.data;
-			}, function errorCallback(response) {});
-
-						
-			$http({
-			  method: 'POST',
-			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatActivities'
-			}).then(function successCallback(response) {
-				$scope.activities = response.data;
-				
-			}, function errorCallback(response) {});
-			$http({
-			  method: 'POST',
-			  data:{id:'56e25471f0d71df75d8b4567'},
-			  url: '/chat/chatlist'
-			}).then(function successCallback(response) {
-				console.log(response);
-				$scope.list = response.data
-				dataonline = [];
-				$.each(response.data, function( index, value ) {
-					dataonline.push(value._id);
-				});
-				$http({
-				  method: 'POST',
-				  data:dataonline,
-				  url: '/chat/useronline'
-				}).then(function successCallback(response) {
-					console.log(response.data);
-
-					$.each(response.data, function( index, data_online ) {
-						if(data_online.status_online == 1){
-							$('.online'+data_online._id).addClass('iamonline');
-							$('.online_text'+data_online._id).html('ออนไลน์');
-						}else if(data_online.status_online == 2){
-							$('.online'+data_online._id).addClass('iamalway');
-							$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
-						}else{
-							$('.online'+data_online._id).addClass('iamoffline');
-							$('.online_text'+data_online._id).html('ออฟไลน์');
-						}
-						
-						
-					});
-
-					
-				})
-
-
-	
-	
-			});
-			var total_popups = 0;
-			var popups = [];
-			$scope.register_popup = function(id,name){
-				alert(id);
-				
-				for(var iii = 0; iii < popups.length; iii++){  
-					console.log(id+"===="+popups[iii]) ;
-	              	if(id == popups[iii]){
-	                    Array.remove(popups, iii);
-	                
-	                    popups.unshift(id);
-	                   
-	                    calculate_popups();
-	                    return;
-	                }
-	            }               
-	            var element = '<div class="popup-box chat-popup" id='+ id +'>';
-	            element = element + '<div class="popup-head">';
-	            element = element + '<div class="popup-head-left">'+ name +'</div>';
-	            element = element + '<div class="popup-head-right"><a href="#">&#10005;</a></div>';
-	            element = element + '<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
-	            
-	            //document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
-	            var template = angular.element(element);
-	            console.log(template);
-				temp =  $compile(template)($scope)
-				//$('body').html($('body')+element);
-				//console.log(document.getElementsByTagName("body")[0].innerHTML);
-				console.log(temp);
-				//console.log(element);
-				document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element; 
-				//temp =  test;
-				//$('.test').html(temp);
-				//angular.element($('.test')).append(temp);
-	    
-	            popups.unshift(id);
-// 	            $scope.test = $compile(document.getElementsByTagName("body")[0].innerHTML  +   element )     
-	            calculate_popups();
-
-			}
-			Array.remove = function(array, from, to) {
-				var rest = array.slice((to || from) + 1 || array.length);
-	            array.length = from < 0 ? array.length + from : from;
-	            return array.push.apply(array, rest);
-        	};
-			
-			$scope.close_popup = function(id){
-				
-	            for(var iii = 0; iii < popups.length; iii++)
-	            {
-	                if(id == popups[iii])
-	                {
-		                console.log(popups[iii]);
-	                    Array.remove(popups, iii);
-	                    
-	                    document.getElementById(id).style.display = "none";
-	                    
-	                    calculate_popups();
-	                    
-	                    return;
-	                }
-	            }   
-	        }
-			function display_popups(){
-				
-	            var calRight = $('.chat-sidebar-sp').width();
-	            console.log(calRight);
-	            var right = 340;
-	            
-	            var iii = 0;
-	            for(iii; iii < total_popups; iii++)
-	            {
-		            console.log(popups[iii]);
-	                if(popups[iii] != undefined)
-	                {
-	                    var element = document.getElementById(popups[iii]);
-	                    element.style.right = right + "px";
-	                    right = right + 340;
-	                    element.style.display = "block";
-	                }
-	            }
-	            
-	            for(var jjj = iii; jjj < popups.length; jjj++)
-	            {
-	                var element = document.getElementById(popups[jjj]);
-	                element.style.display = "none";
-	            }
-	        }
-			function calculate_popups(){
-				
-	            var width = window.innerWidth;
-	            if(width < 540){
-	                total_popups = 0;
-	            }
-	            else{
-	                width = width - 320;
-	                //320 is width of a single popup box
-	                total_popups = parseInt(width/340);
-	            }
-	            
-	            display_popups();
-        	}
-			 window.addEventListener("resize", calculate_popups);
-			 window.addEventListener("load", calculate_popups);
-			$scope.check_num = function(num){
-				if(num > 5){
-					return '...และอีก '+(num - 5)+' คน';
-				}else{
-					return '';
-				}
-			}
-			
-		});		 
+// 	    	// .dropup
+// 	    	angular.module('app', [])
+// 		.controller('chat', function($scope,$http,$compile) {
+// 			$('.include').load("http://localhost:3000/chat/master_chat.html");
+// 			$scope.title = 'FFFF';
+//
+// 			$http({
+// 			  method: 'POST',
+// 			  data:{id:'56e25471f0d71df75d8b4567'},
+// 			  url: '/chat/chatgroup'
+// 			}).then(function successCallback(response) {
+// 				$scope.list_group = response.data;
+// 			}, function errorCallback(response) {});
+//
+//
+// 			$http({
+// 			  method: 'POST',
+// 			  data:{id:'56e25471f0d71df75d8b4567'},
+// 			  url: '/chat/chatActivities'
+// 			}).then(function successCallback(response) {
+// 				$scope.activities = response.data;
+//
+// 			}, function errorCallback(response) {});
+// 			$http({
+// 			  method: 'POST',
+// 			  data:{id:'56e25471f0d71df75d8b4567'},
+// 			  url: '/chat/chatlist'
+// 			}).then(function successCallback(response) {
+// 				console.log(response);
+// 				$scope.list = response.data
+// 				dataonline = [];
+// 				$.each(response.data, function( index, value ) {
+// 					dataonline.push(value._id);
+// 				});
+// 				$http({
+// 				  method: 'POST',
+// 				  data:dataonline,
+// 				  url: '/chat/useronline'
+// 				}).then(function successCallback(response) {
+// 					console.log(response.data);
+//
+// 					$.each(response.data, function( index, data_online ) {
+// 						if(data_online.status_online == 1){
+// 							$('.online'+data_online._id).addClass('iamonline');
+// 							$('.online_text'+data_online._id).html('ออนไลน์');
+// 						}else if(data_online.status_online == 2){
+// 							$('.online'+data_online._id).addClass('iamalway');
+// 							$('.online_text'+data_online._id).html('ออนไลน์แต่กำลังทำบางอย่าง');
+// 						}else{
+// 							$('.online'+data_online._id).addClass('iamoffline');
+// 							$('.online_text'+data_online._id).html('ออฟไลน์');
+// 						}
+//
+//
+// 					});
+//
+//
+// 				})
+//
+//
+//
+//
+// 			});
+// 			var total_popups = 0;
+// 			var popups = [];
+// 			$scope.register_popup = function(id,name){
+// 				alert(id);
+//
+// 				for(var iii = 0; iii < popups.length; iii++){
+// 					console.log(id+"===="+popups[iii]) ;
+// 	              	if(id == popups[iii]){
+// 	                    Array.remove(popups, iii);
+//
+// 	                    popups.unshift(id);
+//
+// 	                    calculate_popups();
+// 	                    return;
+// 	                }
+// 	            }
+// 	            var element = '<div class="popup-box chat-popup" id='+ id +'>';
+// 	            element = element + '<div class="popup-head">';
+// 	            element = element + '<div class="popup-head-left">'+ name +'</div>';
+// 	            element = element + '<div class="popup-head-right"><a href="#">&#10005;</a></div>';
+// 	            element = element + '<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
+//
+// 	            //document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
+// 	            var template = angular.element(element);
+// 	            console.log(template);
+// 				temp =  $compile(template)($scope)
+// 				//$('body').html($('body')+element);
+// 				//console.log(document.getElementsByTagName("body")[0].innerHTML);
+// 				console.log(temp);
+// 				//console.log(element);
+// 				document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
+// 				//temp =  test;
+// 				//$('.test').html(temp);
+// 				//angular.element($('.test')).append(temp);
+//
+// 	            popups.unshift(id);
+// // 	            $scope.test = $compile(document.getElementsByTagName("body")[0].innerHTML  +   element )
+// 	            calculate_popups();
+//
+// 			}
+// 			Array.remove = function(array, from, to) {
+// 				var rest = array.slice((to || from) + 1 || array.length);
+// 	            array.length = from < 0 ? array.length + from : from;
+// 	            return array.push.apply(array, rest);
+//         	};
+//
+// 			$scope.close_popup = function(id){
+//
+// 	            for(var iii = 0; iii < popups.length; iii++)
+// 	            {
+// 	                if(id == popups[iii])
+// 	                {
+// 		                console.log(popups[iii]);
+// 	                    Array.remove(popups, iii);
+//
+// 	                    document.getElementById(id).style.display = "none";
+//
+// 	                    calculate_popups();
+//
+// 	                    return;
+// 	                }
+// 	            }
+// 	        }
+// 			function display_popups(){
+//
+// 	            var calRight = $('.chat-sidebar-sp').width();
+// 	            console.log(calRight);
+// 	            var right = 340;
+//
+// 	            var iii = 0;
+// 	            for(iii; iii < total_popups; iii++)
+// 	            {
+// 		            console.log(popups[iii]);
+// 	                if(popups[iii] != undefined)
+// 	                {
+// 	                    var element = document.getElementById(popups[iii]);
+// 	                    element.style.right = right + "px";
+// 	                    right = right + 340;
+// 	                    element.style.display = "block";
+// 	                }
+// 	            }
+//
+// 	            for(var jjj = iii; jjj < popups.length; jjj++)
+// 	            {
+// 	                var element = document.getElementById(popups[jjj]);
+// 	                element.style.display = "none";
+// 	            }
+// 	        }
+// 			function calculate_popups(){
+//
+// 	            var width = window.innerWidth;
+// 	            if(width < 540){
+// 	                total_popups = 0;
+// 	            }
+// 	            else{
+// 	                width = width - 320;
+// 	                //320 is width of a single popup box
+// 	                total_popups = parseInt(width/340);
+// 	            }
+//
+// 	            display_popups();
+//         	}
+// 			 window.addEventListener("resize", calculate_popups);
+// 			 window.addEventListener("load", calculate_popups);
+// 			$scope.check_num = function(num){
+// 				if(num > 5){
+// 					return '...และอีก '+(num - 5)+' คน';
+// 				}else{
+// 					return '';
+// 				}
+// 			}
+//
+// 		});
 
 			$('.dropup_stk').on('click', '> .dropup-opener', function(e) {
 			    e.preventDefault();
@@ -744,87 +763,87 @@
 				      $('.emoj').html('<i class="fa fa-times"></i>');
 				    }
 			});
-			
+
 			$(document).on('click','.show-friend-ingroup',function() {
-				
+
 				$('.fade').load('friend.html',function(result){
-					
+
 					$(".overlay, .bzn_dialog").css("opacity", 1);
 					$(".overlay").show();
-					
+
 					var mdheight = $(".fade").height(); console.log(mdheight);
 					$(".overlay, .bzn_dialog").css("opacity", 0);
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
-		
+
 					/*Set min height to 90px after mdheight has been set*/
 					$(".bzn_dialog").css("min-height", "90px");
 					$(".overlay").show();
-					
+
 					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-					
+
 					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
 					/*When animation is done show inside content*/
-					
+
 						$(".preload").empty();
 					    $(".fade").show();
 					});
-				});	
+				});
 			});
-			
+
 			$(document).on('click','.show-group-setting',function() {
-				
+
 				$('.fade').load('setting.html',function(result){
-					
+
 					$(".overlay, .bzn_dialog").css("opacity", 1);
 					$(".overlay").show();
-					
+
 					var mdheight = $(".fade").height(); console.log(mdheight);
 					$(".overlay, .bzn_dialog").css("opacity", 0);
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
-		
+
 					/*Set min height to 90px after mdheight has been set*/
 					$(".bzn_dialog").css("min-height", "90px");
 					$(".overlay").show();
-					
+
 					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-					
+
 					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
 					/*When animation is done show inside content*/
-					
+
 						$(".preload").empty();
 					    $(".fade").show();
 					});
-				});	
+				});
 			});
-			
+
 			$(document).on('click','.upphoto',function() {
-				
+
 				$('.fade').load('upload.html',function(result){
-					
+
 					$(".overlay, .bzn_dialog").css("opacity", 1);
 					$(".overlay").show();
-					
+
 					var mdheight = $(".fade").height(); console.log(mdheight);
 					$(".overlay, .bzn_dialog").css("opacity", 0);
 					/*Remove inline styles*/
 					$(".overlay, .bzn_dialog").removeAttr("style");
-		
+
 					/*Set min height to 90px after mdheight has been set*/
 					$(".bzn_dialog").css("min-height", "90px");
 					$(".overlay").show();
-					
+
 					$(".bzn_dialog > .preload").html("<img src='./assets/images/loading.gif' class='loader'> ");
-					
+
 					$(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "590"}, 600, function() {
 					/*When animation is done show inside content*/
-					
+
 						$(".preload").empty();
 					    $(".fade").show();
 					    $("#dropzonex").dropzone({ url: "http://192.168.0.14:3000/uploads" });
 					});
-				});	
+				});
 			});
 
 			/*Close dialog*/
@@ -835,30 +854,30 @@
 					$(".bzn_dialog").css("min-height", "90px");
 				});
 			});
-			
+
 
 	    /**************************/
 	    $(document).ready(function(){
-			$('.gal').each(function() {	
+			$('.gal').each(function() {
 				$(this).magnificPopup({
 				    delegate: 'a',
 				    type: 'image',
 				    gallery:{enabled:true}
 				});
-			});	
+			});
 		    $('.msgsc').scrollTop($('.msgsc')[0].scrollHeight);
-		    
+
 	        $(document).on('click','.dd_cog', function(){
 		        $('.setting_list').slideToggle('fast');
 	        });
 	        $(".setting_list > li > a").click(function () {
 		        //Toggle the child but don't include them in the hide selector using .not()
 		        $('.dd_cog > .setting_list').not($(this).children(".setting_list").slideToggle('fast'));
-		
+
 		    });
-	    
+
 	    });
-	    
+
 	   $(document).on('keyup','.input_friend', function(){
 		   var text = $('.input_friend').val();
 		   if(text.length > 0){
@@ -873,17 +892,17 @@
 	   $(document).on('click','.close_find_friend', function(){
 		   $('.find_frined').slideToggle('fast');
 	   });
-	   
+
 	   $(document).on('click','.close_this_popup', function(){
 		   $('.chat-popup').slideToggle('fast');
 	   });
-	   
-	   
-			 
+
+
+
 	    $(document).on('click','.chat-popup header',function(e) {
 			e.preventDefault();
 			var chat_popup = $('.chat-popup');
-			
+
 			if (chat_popup.hasClass('hide')) {
                 chat_popup.removeClass('hide');
 	                $('.chatarea').slideToggle(300);
@@ -907,9 +926,9 @@
 					$('.chat-popup').css('width','140px');
 					$(this).css('cursor','n-resize');
 		    }
-	
+
 		});
-		
+
 	    $(document).on('click','.xtabs-min',function(e) {
 			e.preventDefault();
 			$('.chat-sidebar-sp').slideToggle(300);
@@ -920,24 +939,24 @@
 			$('.chat-sidebar-sp').slideToggle(300);
 			$('.minsearch').slideToggle(300);
 		});
-	    
-	    
+
+
 	    //$('.chat-sidebar-sp').draggable({ handle: 'header' });
         //this function can remove a array element.
 /*
         Array.remove = function(array, from, to) {
-	        
+
             var rest = array.slice((to || from) + 1 || array.length);
             array.length = from < 0 ? array.length + from : from;
             return array.push.apply(array, rest);
         };
-    
+
         //this variable represents the total number of popups can be displayed according to the viewport width
         var total_popups = 0;
-        
+
         //arrays of popups ids
         var popups = [];
-    
+
         //this is used to close a popup
         function close_popup(id)
         {
@@ -947,23 +966,23 @@
                 {
 	                console.log(popups[iii]);
                     Array.remove(popups, iii);
-                    
+
                     document.getElementById(id).style.display = "none";
-                    
+
                     calculate_popups();
-                    
+
                     return;
                 }
-            }   
+            }
         }
-    
+
         //displays the popups. Displays based on the maximum number of popups that can be displayed on the current viewport width
         function display_popups()
         {
             var calRight = $('.chat-sidebar-sp').width();
-            
+
             var right = 340;
-            
+
             var iii = 0;
             for(iii; iii < total_popups; iii++)
             {
@@ -976,7 +995,7 @@
                     element.style.display = "block";
                 }
             }
-            
+
             for(var jjj = iii; jjj < popups.length; jjj++)
             {
                 var element = document.getElementById(popups[jjj]);
@@ -984,44 +1003,44 @@
             }
         }
 */
-        
+
         //creates markup for a new popup. Adds the id to popups array.
 /*
         function register_popup(id, name)
         {
-            
+
             for(var iii = 0; iii < popups.length; iii++)
-            {   
+            {
                 //already registered. Bring it to front.
                 if(id == popups[iii])
                 {
 	               // console.log(popups[iii]);
                     Array.remove(popups, iii);
-                
+
                     popups.unshift(id);
-                    
+
                     calculate_popups();
-                    
-                    
+
+
                     return;
                 }
-            }               
-            
+            }
+
             var element = '<div class="popup-box chat-popup" id="'+ id +'">';
             element = element + '<div class="popup-head">';
             element = element + '<div class="popup-head-left">'+ name +'</div>';
             element = element + '<div class="popup-head-right"><a href="javascript:close_popup(\''+ id +'\');">&#10005;</a></div>';
             element = element + '<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
-            
-            document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;  
-    
+
+            document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
+
             popups.unshift(id);
-                    
+
             calculate_popups();
-            
+
         }
 */
-        
+
         //calculate the total number of popups suitable and then populate the toatal_popups variable.
 /*
         function calculate_popups()
@@ -1037,15 +1056,15 @@
                 //320 is width of a single popup box
                 total_popups = parseInt(width/340);
             }
-            
+
             display_popups();
-            
+
         }
 */
-        
+
         //recalculate when window is loaded and also when window is resized.
-       
-        
+
+
     </script>
   </body>
 </html>

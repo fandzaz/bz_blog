@@ -32,6 +32,7 @@ module.exports = new function(){
 		content:Schema.Types.Mixed,
 		post_time:Number,
 		read_status:Number,
+		read_list:[],
 		post_type:String,
 		ip:String,
 		shop_id:Schema.Types.Mixed,

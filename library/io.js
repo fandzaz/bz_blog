@@ -4,7 +4,6 @@ module.exports = function(server){
   io.on('connection', function(socket){
     console.log('a user connected');
     socket.on('sendChat',function(data){
-
       io.emit('getChat',data);
     })
     socket.on('MessageLoad',function(data1){
@@ -13,6 +12,19 @@ module.exports = function(server){
     socket.on('updateGroup',function(data){
       io.emit('updateGroup',data);
     });
+    socket.on('delUserGroup',function(data){
+      io.emit('delUserGroup',data);
+    });
+    socket.on('createGroup',function(data){
+      io.emit('createGroup',data);
+    });
+    socket.on('getLastRead',function(data){
+      io.emit('getLastRead',data);
+    });
+
+
+
+
 
 
 

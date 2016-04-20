@@ -1,7 +1,8 @@
 var socket = io.connect();
 var site = 'http://192.168.0.25:3000';
 
-var app = angular.module('app_chat', ['contenteditable']);
+var app = angular.module('app_chat', ['contenteditable','ngSanitize']);
+
 
 app.directive('onFinishRender', function ($timeout) {
     return {
@@ -15,8 +16,6 @@ app.directive('onFinishRender', function ($timeout) {
         }
     }
 });
-
-
 app.directive('schrollBottom', function () {
     return {
       scope: {
@@ -88,7 +87,8 @@ app.controller('chat', function($scope,$http,$compile,$window,$interval) {
 
   loadActivities(session_id);
   loadListChat(session_id);
-  loadGroup(session_id);
+  loadGroup(session_id,function(success){});
+  loadNotification();
 
 Array.prototype.remove = function() {
   var what, a = arguments, L = a.length, ax;
@@ -100,10 +100,6 @@ Array.prototype.remove = function() {
   }
   return this;
   };
-
-
-
-
   var total_popups = 0;
   var popups = [];
   var data_chat = [];
@@ -116,23 +112,21 @@ var time_client;
 socket.on('updateGroup',function(data){
   $.each($scope.list_group,function(index,group){
     if(group.groupid == data._id){
-      loadGroup(session_id);
+      loadGroup(session_id,function(success){});
     }
   })
 });
 socket.on('getChat',function(data){
 
-
-  //updateChat1('56fcc84ebfc25d054719da2e',data.data_chat);
-  $.each($scope.list_group, function( index, value ) {
+$.each($scope.list_group, function( index, value ) {
 
     if(value.groupid == data.id && session_id != data.ids){
-
+        loadNotification();
         updateChat1(data.data_chat.group_id,data.data_chat);
         angular.element('.autoclickid'+data.id).triggerHandler('click');
     }
     if(session_id == data.ids){
-      loadGroup(session_id);
+      loadGroup(session_id,function(success){});
     }
   });
 $.each($scope.list, function( index, list ) {
@@ -150,7 +144,7 @@ $.each($scope.list, function( index, list ) {
        }, 1000);
 
       //loadListChat(session_id);
-
+      loadNotification();
       updateChat1(data.data_chat.group_id,data.data_chat);
       angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
 
@@ -172,17 +166,12 @@ $.each($scope.list, function( index, list ) {
        }, 1000);
 
       //loadListChat(session_id);
-
+      loadNotification();
       updateChat1(data.data_chat.group_id,data.data_chat);
       angular.element('.autoclickid'+data.data_chat.group_id).triggerHandler('click');
 
     }
-    // if(session_id == data.ids){
-    //   console.log('xxx')
-    //   loadActivities(session_id);
-    // }
-
-  })
+})
 
 });
 //setTimeout(loadListChat, 2000);
@@ -235,99 +224,138 @@ $scope.sendMail = function(){
               html:'what the fix'
   };
 
-  console.log(data);
+
   http_post('/mail/submitMuti',{mail:data},function(data){
     console.log(data);
   });
 }
 $scope.updateGroup = function(gid){
-  console.log(gid);
+
   if($scope.group_name){
 
     data = {user_id:session_id,gid:gid,name:$scope.group_name};
     http_post('/chat/updateNameGroup',data,function(data){
       socket.emit('updateGroup', data);
-      loadGroup(session_id);
+      loadGroup(session_id,function(success){});
     });
   }
 
 }
 function getMemberGroup(gid){
-  console.log($scope.list_group);
-  $.each($scope.list_group,function(index,data){
-    if(data.groupid == gid){
-      $scope.list_member_group = data.user;
+    var data_user = [];
+
+      $.each($scope.list_group,function(index,data){
+        if(data.groupid == gid){
+          data_user = data.user;
+        }
+      });
+    if(data_user.length != 0){
+      $scope.list_member_group = data_user
+    }else{
+      $scope.list_member_group = [];
     }
+
+
+
+}
+socket.on('delUserGroup',function(data){
+
+  angular.element('.autocloseid'+data.gid).triggerHandler('click');
+  $.each(data.member,function(index,session){
+    if(session == session_id){
+      loadGroup(session_id,function(success){
+        getMemberGroup(data.gid);
+      });
+    }
+  });
+});
+$scope.addFriendGroup = function(gid,user_id){
+  http_post('/chat/addFriendGroup',{gid:gid,user_id:user_id},function(data){
+    loadGroup(session_id,function(success){
+      getFriend(gid);
+      socket.emit('updateGroup', data);
+    });
   });
 
 }
 $scope.outFriend = function(gid,user_id){
+  var member = [];
+  $.each($scope.list_member_group,function(index,user){
+    member.push(user._id);
+  });
   http_post('/chat/delUserGroup',{gid:gid,user_id:user_id},function(data){
-    loadGroup(session_id);
-    console.log($scope.list_member_group);
-    getMemberGroup(gid);
+    loadGroup(session_id,function(success){
+        getMemberGroup(gid);
+        $.each($scope.list_member_group,function(index,user){
+          member.push(user._id);
+        });
+        var data = {gid:gid,user_id:user_id,member:member}
+        socket.emit('delUserGroup', data);
+    });
+
   });
 }
-$scope.getFriend = function(gid){
-  getMemberGroup(gid)
-  $('.fade').load('/chat/showFriend/'+gid,function(result){
+function getFriend(gid){
+  http_post('/chat/getFriend',{session_id:session_id,gid:gid},function(data){
+    $scope.friendMe = data;
+  });
+}
+$scope.addFriendToGroup = function(gid){
+  getFriend(gid);
+  $('.fade').load('/chat/addFriend/'+gid,function(result){
 
     var compile = $compile($('.fade').html())($scope);
     $('.fade').html(compile);
     $(".overlay, .bzn_dialog").css("opacity", 1);
     $(".overlay").show();
-
     var mdheight = $(".fade").height(); console.log(mdheight);
     $(".overlay, .bzn_dialog").css("opacity", 0);
-    /*Remove inline styles*/
     $(".overlay, .bzn_dialog").removeAttr("style");
-
-    /*Set min height to 90px after mdheight has been set*/
     $(".bzn_dialog").css("min-height", "90px");
     $(".overlay").show();
-
     $(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
-
     $(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
-    /*When animation is done show inside content*/
-
-      $(".preload").empty();
+    $(".preload").empty();
         $(".fade").show();
-
+    });
+  });
+}
+$scope.getFriend = function(gid){
+  getMemberGroup(gid);
+  $('.fade').load('/chat/showFriend/'+gid,function(result){
+    var compile = $compile($('.fade').html())($scope);
+    $('.fade').html(compile);
+    $(".overlay, .bzn_dialog").css("opacity", 1);
+    $(".overlay").show();
+    var mdheight = $(".fade").height(); console.log(mdheight);
+    $(".overlay, .bzn_dialog").css("opacity", 0);
+    $(".overlay, .bzn_dialog").removeAttr("style");
+    $(".bzn_dialog").css("min-height", "90px");
+    $(".overlay").show();
+    $(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
+    $(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
+    $(".preload").empty();
+        $(".fade").show();
     });
   });
 }
 $scope.getSetting = function(gid){
   $('.fade').load('/chat/setting/'+gid,function(result){
-
     var compile = $compile($('.fade').html())($scope);
-    //
     $('.fade').html(compile);
-    console.log($('.fade').html());
     $(".overlay, .bzn_dialog").css("opacity", 1);
     $(".overlay").show();
-
     var mdheight = $(".fade").height(); console.log(mdheight);
     $(".overlay, .bzn_dialog").css("opacity", 0);
-    /*Remove inline styles*/
     $(".overlay, .bzn_dialog").removeAttr("style");
-
-    /*Set min height to 90px after mdheight has been set*/
     $(".bzn_dialog").css("min-height", "90px");
     $(".overlay").show();
-
     $(".bzn_dialog > .preload").html("<img src='/images/loading.gif' class='loader'> ");
-
     $(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "320"}, 600, function() {
-    /*When animation is done show inside content*/
-
-      $(".preload").empty();
+    $(".preload").empty();
         $(".fade").show();
-
     });
   });
-
-
 }
 $scope.submitUpload = function(){
   $('.uploadForm').ajaxSubmit({
@@ -337,14 +365,12 @@ $scope.submitUpload = function(){
         success: function(data) {
           $scope.imgGroup = data.picture;
           socket.emit('updateGroup', data);
-          loadGroup(session_id);
+          loadGroup(session_id,function(success){});
         }
   		});
 
 
   	return false;
-
-  //});
 }
 
 $scope.sendChatPhoto = function(gid,id){
@@ -367,15 +393,16 @@ $scope.sendChatPhoto = function(gid,id){
     $(".bzn_dialog").css("width", "200").animate({"opacity" : 1,height : mdheight,width : "590"}, 600, function() {
     $(".preload").empty();
         $(".fade").show();
-        console.log(gid);
+
         //$("#dropzonex").dropzone({ url: "/uploadChat",method:'post',uploadMultiple:true,maxFilesize:5,maxFiles: 12,paramName:'file',autoProcessQueue: true});
+
           $("#dropzonex").dropzone({
             url: site+"/chat/uploadChat",
             params: { user_id: session_id,gid:gid },
             maxFiles: 12,
             maxFilesize: 5,
-            success: function(file, response){
-
+            successmultiple: function(file, response){
+                $scope.lastRead[gid] = '';
                 response.chat.picture = response.picture;
                 data = {id:id,ids:session_id,gid:gid,data_chat:response.chat}
                 updateChat1(gid,response.chat);
@@ -389,6 +416,13 @@ $scope.sendChatPhoto = function(gid,id){
     });
   });
 }
+function urlify(text) {
+  var urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '">' + url + '</a>';
+    })
+}
+
 $scope.sendChatMessage = function(gid,id,picture){
   if(!gid){
     gid = id;
@@ -399,15 +433,17 @@ $scope.sendChatMessage = function(gid,id,picture){
     $scope.message_check[gid] = true;
   }else{
     $scope.message_check[gid] = false;
+
     $http({
       method: 'POST',
       data:{gid:gid,user_id:session_id,message:$scope.message[gid]},
       url: '/chat/sendChatMessage'
     }).then(function successCallback(response) {
+      $scope.lastRead[gid] = '';
       $scope.message[gid] = '';
       response.data.chat.picture = response.data.picture;
       data = {id:id,ids:session_id,gid:gid,data_chat:response.data.chat}
-
+      socket.emit('MessageLoad', {gid:gid,user_id:session_id,fucus:false});
 
       updateChat1(gid,response.data.chat);
       socket.emit('sendChat', data);
@@ -431,6 +467,8 @@ $scope.getTimeAgo = function(date){
   return "<span data-livestamp="+date+"></span>";
 }
 function updateChat1(gid,chatMessage){
+  chatMessage.content = urlify(chatMessage.content)
+  console.log(chatMessage.content);
     if($scope.data_chat){
       $.each($scope.data_chat,function(index,data){
         if(data.gid == gid){
@@ -441,6 +479,7 @@ function updateChat1(gid,chatMessage){
     loadPopup();
 }
 socket.on('MessageLoad1',function(data){
+
   if(session_id != data.user_id){
     if(data.fucus){
       $('.loadMessage'+data.gid).html('กำลังพิมพ์ข้อความ..');
@@ -461,25 +500,81 @@ function http_post(url,data,callback){
       callback(response.data);
     });
 }
-$scope.addGroup = function(friend_id){
-  data = {id:session_id,friend_id:friend_id};
+socket.on('createGroup',function(friend_id){
+  if(session_id == friend_id){
+    loadGroup(session_id,function(success){})
+  }
+});
+$scope.addGroup = function(user_id,friend_id){
+
+  data = {id:session_id,user_id:user_id,friend_id:friend_id};
   http_post('/chat/addGroup',data,function(data){
-    loadGroup(session_id);
+    loadGroup(session_id,function(success){
+      socket.emit('createGroup',friend_id);
+    });
   })
 
 }
 $scope.findFriend = function(gid){
 
-    if($scope.findFriendG[gid].length <= 2){
-      data = {id:session_id,find:$scope.findFriendG[gid]};
-      http_post('/chat/findFriend',data,function(data){
-          $scope.friendFind[gid] = data;
-      });
 
-    }
+  if($scope.findFriendG[gid].length != 0){
+    if($scope.findFriendG[gid].length <= 2 ){
+        $('.friendlist'+gid).css('display','block');
+        data = {id:session_id,find:$scope.findFriendG[gid]};
+        http_post('/chat/findFriend',data,function(data){
+
+            $scope.friendFind[gid] = data;
+
+        });
+      }
+  }else{
+    $('.friendlist'+gid).css('display','none');
+  }
 
 
 }
+function lastRead(gid){
+  var read = '';
+  var text = '';
+  http_post('/chat/lastRead',{gid:gid},function(data){
+    // $.each(data.slice(0,2),function(index,user){
+    //   read += ', '+user.fname
+    if(data.length != 0){
+      if(data.length > 2){
+        read = data[0].fname+','+data[1].fname;
+        text = ' และคนอื่นๆอีก '+(data.length - 2);
+      }else{
+
+        read = data[0].fname;
+      }
+      $scope.lastRead[gid] = '<i class="fa fa-check"></i> '+read+text+'<span>อ่านแล้ว</span>';
+    }
+
+  });
+}
+socket.on('getLastRead',function(gid){
+  lastRead(gid);
+});
+
+$scope.checkRead = function(gid){
+
+  var length_check = 0;
+  $.each($scope.data_chat,function(index,chat){
+    if(chat.gid == gid){
+      length_check = chat.chat.length
+
+    }
+  });
+  // if(length_check != length[gid]){
+    http_post('/chat/readCaht',{session_id:session_id,gid:gid},function(data){
+      loadNotification();
+      socket.emit('getLastRead',gid);
+    });
+  //}
+
+}
+
 $scope.focusInput = function(id){
 
   if($scope.message[id]){
@@ -492,10 +587,17 @@ $scope.pasteHtml = function(e,id){
   //$('[contenteditable]').on('paste',function(e) {
     e.preventDefault();
     var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-    $('[contenteditable]').html(text);
+    $scope.message[id] = text;
+    //$('[contenteditable]').html(text);
 
 }
-function loadGroup(id){
+function loadNotification(){
+  http_post('/chat/loadNotification',{session_id:session_id},function(data){
+    $scope.notification = data;
+
+  });
+}
+function loadGroup(id,callback){
   $http({
       method: 'POST',
       data:{id:id},
@@ -503,7 +605,7 @@ function loadGroup(id){
     }).then(function successCallback(response) {
 
       $scope.list_group = response.data;
-
+      callback('success');
     }, function errorCallback(response) {});
 }
 function loadActivities(id){
@@ -552,8 +654,9 @@ function loadListChat(id){
     });
   });
   }
+var length = []
 $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
-
+    //$scope.checkRead(id);
     for(var iii = 0; iii < popups.length; iii++){
       if(id == popups[iii]){
         Array.remove1(popups, iii);
@@ -586,8 +689,11 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
 
           if(response.data == 'err'){
             messageChat = [];
+
           }else{
             messageChat = response.data;
+            lastRead(id);
+
           }
           if($scope.data_chat != null){
             if(id == null){
@@ -647,6 +753,7 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
           messageChat = [];
         }else{
           messageChat = response.data;
+          lastRead(id);
         }
         if($scope.data_chat != null){
           addPop(id);
@@ -667,12 +774,6 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
       }, function errorCallback(response) {});
 
     }
-
-
-
-
-
-
 }
 function addPop(id){
   if(popups.length == 0){

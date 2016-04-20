@@ -1,8 +1,9 @@
 <!-- CHAT PANEL -->
-<div class='chat-popup'>
-	<header>
+<div class='chat-popup' ng-app="app_chat">
+	<header >
+
 	</header>
-	<div class='name_head'><div class='name'>ชื่อและนามสกุล</div> <button  class='chat-popup-xc close_this_popup'><i class="fa fa-times"></i></button></div>
+	<div class='name_head' ng-controller="chat">xxx{{site}}<div class='name'>ชื่อและนามสกุล</div> <button  class='chat-popup-xc close_this_popup'><i class="fa fa-times"></i></button></div>
 	<button  class='chat-popup-cc close_this_popup'><i class="fa fa-times"></i></button>
 	<button  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
 	    <ul class='setting_list'>
@@ -90,8 +91,8 @@
 					<div class='msg_is_read'><i class="fa fa-check"></i>เหม่ง,ลิงกัง,เค็มจังโฮ <span>อ่านแล้ว</span></div>
 				</div>
 			</div>
-			
-			
+
+
 			<!-- sample its me -->
 			<div class='item-chat itsme'>
 				<div class='messages'>
@@ -153,7 +154,7 @@
 		<div class='chat_text_cv'>
 			<div class='chat_text_input' contenteditable="true" data-placeholder='พิมพ์ข้อความ...'></div>
 		</div>
-	</div> 
+	</div>
 	<div class='chat_control'>
 		<button class='box_ctrl upphoto'><i class="fa fa-camera-retro"></i></button>
 		<div class='dropup_emo'>

@@ -12,7 +12,7 @@ module.exports = new function(){
 			    }else{
 				    img = 'assets/images/blank_user.png'
 					}
-					data_user_tool.push({_id:un._id,name:un.first_name+' '+un.last_name,gender:un.gender,email:un.email,facebook_id:un.facebook_id,join_date:un.join_date,activated:un.activated,latitude:un.latitude,longitude:un.latitude,picture:img});
+					data_user_tool.push({_id:un._id,name:un.first_name+' '+un.last_name,fname:un.first_name,gender:un.gender,email:un.email,facebook_id:un.facebook_id,join_date:un.join_date,activated:un.activated,latitude:un.latitude,longitude:un.latitude,picture:img});
 				});
 				callback(data_user_tool);
 		});
@@ -40,6 +40,23 @@ module.exports = new function(){
 			}
 			dataUserOne = {_id:u._id,name:u.first_name+' '+u.last_name,gender:u.gender,email:u.email,facebook_id:u.facebook_id,join_date:u.join_date,activated:u.activated,latitude:u.latitude,longitude:u.latitude,picture:img};
 			callback(dataUserOne);
+		});
+	}
+	this.getFriendAll = function(session_id,callback){
+		var user = [];
+		Friend.find({$or: [ { user_id:db.ObjectId(session_id) }, { user_id_res:db.ObjectId(session_id)}],status:1}).lean().exec(function(err,result){
+			result.forEach(function(f){
+				if(f.user_id == session_id){
+					user.push(f.user_id_res);
+				}else{
+					user.push(f.user_id);
+				}
+	    });
+			callback(user);
+			// module.exports.getUser(user,function(data_user){
+			// 	callback(data_user);
+			// });
+
 		});
 	}
 	// this.getShopByUser = function(data_array,callback){
@@ -118,12 +135,14 @@ module.exports = new function(){
 	// 	});
 	// }
 	this.checkFriendSingle = function(user_id,friend_id,callback){
-		Friend.find({$or: [ { user_id:db.ObjectId(user_id) }, { user_id_res:db.ObjectId(friend_id)}],status:1}).lean().exec(function(err,result){
+		Friend.find({$and: [ { user_id:db.ObjectId(user_id) }, { user_id_res:db.ObjectId(friend_id)}],status:1}).lean().exec(function(err,result){
+
 			if(result.length != 0){
 				callback({id:friend_id,status:true});
 			}else{
-				Friend.find({$or: [ { user_id:db.ObjectId(friend_id) }, { user_id_res:db.ObjectId(user_id)}],status:1}).lean().exec(function(err,result1){
-					if(result.length != 0){
+				Friend.find({$and: [ { user_id:db.ObjectId(friend_id) }, { user_id_res:db.ObjectId(user_id)}],status:1}).lean().exec(function(err,result1){
+					console.log(result1);
+					if(result1.length != 0){
 						callback({id:friend_id,status:true});
 					}else{
 						callback({id:friend_id,status:false});

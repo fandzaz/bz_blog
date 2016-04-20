@@ -10,6 +10,12 @@ module.exports = new function(){
 	   }
 	   return a;
 	}
+	this.urlify = function(text) {
+	  var urlRegex = /(https?:\/\/[^\s]+)/g;
+	    return text.replace(urlRegex, function(url) {
+	        return '<a href="' + url + '">' + url + '</a>';
+	    })
+	}
 
 	this.getTime = function(){
 		var d = new Date();

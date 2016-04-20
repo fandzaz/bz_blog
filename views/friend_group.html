@@ -1,0 +1,30 @@
+<!-- <input type='text' ng-model='test'> -->
+<div class="inner_gray clearfix" ng-model='test' >
+
+  <div class="inner_gray_text">
+    เพิ่มเพื่อน
+  </div>
+
+  <div class="inner_gray_close_button">
+    <a href="#" class="dialog_close" role="button" title="Close">&times;</a>
+  </div>
+</div>
+
+<div class="inner_body" >
+
+  <div class="inner_body_content" >
+    <div   contenteditable="true" ng-model="find_friend" data-placeholder='ค้นหา'></div>
+    <ul class='mygroupchat' ng-init="gid = '<%= gid%>'">
+
+        <li ng-repeat="m in friendMe | filter:find_friend track by $index" >
+            <div class='they_av'><img ng-src='http://27.254.81.103:7001/90x90/{{m.picture}}'></div>
+            <div class='they_name'>{{m.name}} <span>มีเพื่อนร่วมกัน xx คน</span></div>
+            <div class='they_action'><div class="df_button stay " ng-click="addFriendGroup(gid,m._id)">เพิ่มเพื่อน</div></div>
+            <!-- <div ng-if="m._id == session_id" class='they_action'><div class="df_button stay" ng-click="outFriend(gid,m._id)"  >ออกจากการสนทนา</div></div>
+            <div ng-if="m._id != session_id" class='they_action'><div class="df_button stay" ng-click="outFriend(gid,m._id)">ลบออก</div></div> -->
+        </li>
+    </ul>
+
+
+  </div>
+</div>
