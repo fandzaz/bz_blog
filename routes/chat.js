@@ -57,7 +57,7 @@ router.post('/addFriendGroup', function(req, res, next) {
       groupNew = resultGroup.member
       groupNew.push(db.ObjectId(user_id));
       Group.findOneAndUpdate({_id:db.ObjectId(gid)},{member:groupNew},function(err,result){
-        res.json(groupNew);
+        res.json(resultGroup);
       })
 
     }
@@ -85,36 +85,48 @@ router.post('/readCaht', function(req, res, next) {
   var session_id = req.body.session_id;
   var gid = req.body.gid;
   var read_list = [];
-  Group_message.findOne({group_id:db.ObjectId(gid),user_id:{$ne:db.ObjectId(session_id)},read_list:{$ne:db.ObjectId(session_id)}}).sort({post_time:'desc'}).lean().exec(function(err,resultMessage){
-
+  Group_message.findOne({group_id:db.ObjectId(gid),user_id:{$ne:db.ObjectId(session_id)}}).sort({post_time:'-1'}).lean().exec(function(err,resultMessage){
     if(resultMessage != null){
-      read_list = resultMessage.read_list;
-      read_list.push(db.ObjectId(session_id));
-      Group_message.findOneAndUpdate({_id:resultMessage._id},{read_list:read_list},function(err,result){
-        res.json(result);
-      })
+      if(function_t.inArray(session_id,resultMessage.read_list)){
+        res.json(resultMessage);
+      }else{
+        read_list = resultMessage.read_list;
+        read_list.push(db.ObjectId(session_id));
+        Group_message.findOneAndUpdate({_id:resultMessage._id},{read_list:read_list},function(err,result){
+          res.json(result);
+        })
+      }
     }else{
       res.json(resultMessage);
     }
-    //res.json(resultMessage);
   });
 });
 router.post('/loadNotification', function(req, res, next) {
   var session_id = req.body.session_id;
   var listGroup = [];
+  var notification = [];
   var num = 0;
   var i = 0;
   Group.find({member:db.ObjectId(session_id)}).lean().exec(function(err,resultGroup){
     resultGroup.forEach(function(g){
-      Group_message.findOne({group_id:g._id,user_id:{$ne:db.ObjectId(session_id)},read_list:{$ne:db.ObjectId(session_id)}}).sort({post_time:'desc'}).lean().exec(function(err,resultMessage){
-        console.log(resultMessage);
+      Group_message.findOne({group_id:g._id,user_id:{$ne:db.ObjectId(session_id)}}).sort({post_time:'-1'}).lean().exec(function(err,resultMessage){
         if(resultMessage != null){
-          num++;
+
+          if(!function_t.inArray(session_id,resultMessage.read_list)){
+            resultMessage.status_read = true;
+            notification.push(resultMessage);
+            num++;
+          }else{
+            resultMessage.status_read = false;
+            notification.push(resultMessage);
+          }
         }
         i++;
         if(resultGroup.length == i){
-          res.json(num);
+          res.json({num_notification:num,notification:notification});
         }
+
+
       });
     });
   });
@@ -357,6 +369,7 @@ router.post('/sendChatMessage',function(req,res,next){
         }
         Group_member.findOneAndUpdate({group_id:db.ObjectId(gid)},{last_update:function_t.getTime()},function(err,member){})
       });
+      console.log(addGroup.user_id);
       chat_tool.getUersOne(addGroup.user_id,function(data){
           addGroup.content = message;//function_t.urlify(message);
 

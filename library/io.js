@@ -21,6 +21,9 @@ module.exports = function(server){
     socket.on('getLastRead',function(data){
       io.emit('getLastRead',data);
     });
+    socket.on('addActivities',function(data){
+      io.emit('addActivities',data);
+    });
 
 
 

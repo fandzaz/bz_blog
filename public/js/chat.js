@@ -3,7 +3,6 @@ var site = 'http://192.168.0.25:3000';
 
 var app = angular.module('app_chat', ['contenteditable','ngSanitize']);
 
-
 app.directive('onFinishRender', function ($timeout) {
     return {
         restrict: 'A',
@@ -110,10 +109,20 @@ Array.prototype.remove = function() {
 var timer_server;
 var time_client;
 socket.on('updateGroup',function(data){
+    // data.forEach(function(u){
+    //   if(u == session_id){
+    //     loadGroup(session_id,function(success){});
+    //   }
+    // });
+
   $.each($scope.list_group,function(index,group){
+
     if(group.groupid == data._id){
       loadGroup(session_id,function(success){});
     }
+
+
+
   })
 });
 socket.on('getChat',function(data){
@@ -130,8 +139,10 @@ $.each($scope.list_group, function( index, value ) {
     }
   });
 $.each($scope.list, function( index, list ) {
+    console.log(data)
+    console.log(list);
     if(list.gid == data.gid && session_id != data.ids){
-
+      console.log('123123hhhhh');
       count = 0;
       clearInterval(timer_server);
       timer_server = setInterval(function(){
@@ -416,10 +427,16 @@ $scope.sendChatPhoto = function(gid,id){
     });
   });
 }
+$scope.urlify = function(text){
+  var urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" TARGET="_blank">' + url + '</a>';
+    })
+}
 function urlify(text) {
   var urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, function(url) {
-        return '<a href="' + url + '">' + url + '</a>';
+        return '<a href="' + url + '" TARGET="_blank">' + url + '</a>';
     })
 }
 
@@ -467,9 +484,11 @@ $scope.getTimeAgo = function(date){
   return "<span data-livestamp="+date+"></span>";
 }
 function updateChat1(gid,chatMessage){
-  chatMessage.content = urlify(chatMessage.content)
+  //chatMessage.content = urlify(chatMessage.content)
   console.log(chatMessage.content);
+  console.log('123123123aaaaaa')
     if($scope.data_chat){
+      console.log('123123123xxxxx')
       $.each($scope.data_chat,function(index,data){
         if(data.gid == gid){
           $scope.data_chat[index].chat.push(chatMessage);
@@ -500,17 +519,20 @@ function http_post(url,data,callback){
       callback(response.data);
     });
 }
-socket.on('createGroup',function(friend_id){
-  if(session_id == friend_id){
-    loadGroup(session_id,function(success){})
-  }
+socket.on('createGroup',function(friend){
+  friend.forEach(function(f){
+    if(session_id == f){
+      loadGroup(session_id,function(success){})
+    }
+  });
+
 });
 $scope.addGroup = function(user_id,friend_id){
 
   data = {id:session_id,user_id:user_id,friend_id:friend_id};
   http_post('/chat/addGroup',data,function(data){
     loadGroup(session_id,function(success){
-      socket.emit('createGroup',friend_id);
+      socket.emit('createGroup',[user_id,friend_id]);
     });
   })
 
@@ -540,7 +562,9 @@ function lastRead(gid){
   http_post('/chat/lastRead',{gid:gid},function(data){
     // $.each(data.slice(0,2),function(index,user){
     //   read += ', '+user.fname
-    if(data.length != 0){
+
+    if(data != null && data.length != 0){
+      console.log(data);
       if(data.length > 2){
         read = data[0].fname+','+data[1].fname;
         text = ' และคนอื่นๆอีก '+(data.length - 2);
@@ -559,13 +583,13 @@ socket.on('getLastRead',function(gid){
 
 $scope.checkRead = function(gid){
 
-  var length_check = 0;
-  $.each($scope.data_chat,function(index,chat){
-    if(chat.gid == gid){
-      length_check = chat.chat.length
-
-    }
-  });
+  // var length_check = 0;
+  // $.each($scope.data_chat,function(index,chat){
+  //   if(chat.gid == gid){
+  //     length_check = chat.chat.length
+  //
+  //   }
+  // });
   // if(length_check != length[gid]){
     http_post('/chat/readCaht',{session_id:session_id,gid:gid},function(data){
       loadNotification();
@@ -593,8 +617,8 @@ $scope.pasteHtml = function(e,id){
 }
 function loadNotification(){
   http_post('/chat/loadNotification',{session_id:session_id},function(data){
-    $scope.notification = data;
-
+    $scope.notification = data.num_notification;
+    $scope.listNotification = data.notification;
   });
 }
 function loadGroup(id,callback){
@@ -794,13 +818,19 @@ Array.remove1 = function(array, from, to) {
   var rest = array.slice((to || from) + 1 || array.length);
         array.length = from < 0 ? array.length + from : from;
         return array.push.apply(array, rest);
-    };
+};
+socket.on('addActivities',function(user_id){
+  if(session_id == user_id){
+    loadListChat(session_id);
+  }
+});
 function addActivities(session_id,user_id,callback){
     $http({
       method: 'POST',
       data:{id:session_id,user_id:user_id},
       url: '/chat/addActivities'
     }).then(function successCallback(resGroup) {
+      socket.emit('addActivities',user_id);
       callback(resGroup)
     })
   }

@@ -6,15 +6,17 @@ module.exports = new function(){
 	this.getUser = function(data_array,callback){
 		Users.find({ _id: { $in: data_array } }).lean().exec(function(err,u){
 			var data_user_tool = [];
+			if(u != null){
 				u.forEach(function(un){
 					if(un.avatar != null){
 						img = un.avatar
-			    }else{
-				    img = 'assets/images/blank_user.png'
+					}else{
+						img = 'assets/images/blank_user.png'
 					}
 					data_user_tool.push({_id:un._id,name:un.first_name+' '+un.last_name,fname:un.first_name,gender:un.gender,email:un.email,facebook_id:un.facebook_id,join_date:un.join_date,activated:un.activated,latitude:un.latitude,longitude:un.latitude,picture:img});
 				});
-				callback(data_user_tool);
+			}
+			callback(data_user_tool);
 		});
 	}
 	this.getUserByName = function(name,callback){

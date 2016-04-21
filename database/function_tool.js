@@ -10,6 +10,15 @@ module.exports = new function(){
 	   }
 	   return a;
 	}
+	this.inArray = function(value,arr){
+		var check = false;
+		arr.forEach(function(loop){
+			if(loop+'' == value){
+				check = true
+			}
+		});
+		return check;
+	}
 	this.urlify = function(text) {
 	  var urlRegex = /(https?:\/\/[^\s]+)/g;
 	    return text.replace(urlRegex, function(url) {

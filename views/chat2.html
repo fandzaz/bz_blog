@@ -26,6 +26,9 @@
           {{session_id}}
           {{xxx()}}
         Nav_notification:{{notification}}
+        <ul>
+          <li ng-repeat="n in listNotification" ng-click="checkRead(n.group_id)">{{n.content}} status_read:{{n.status_read}}</li>
+        </ul>
         <div class="list" >
         <div ng-init = "message = []">
         <div ng-init = "findFriendG = []">
@@ -64,7 +67,7 @@
 							<button  class='chat-popup-cp close_find_friend' data-id="{{c.gid}}" ><i class="fa fa-times"></i></button>
 
 							<ul class='myfriendlist friendlist{{c.gid}}'>
-								<li ng-repeat="friend in friendFind[c.gid] | filter:findFriendG[c.gid] track by $index " ><a href='#' ng-click="addGroup(c.id,friend._id)"><img src='http://27.254.81.103:7001/90x90/{{friend.picture}}'><div class='span'>{{friend.name}}</div></a></li>
+								<li ng-repeat="friend in friendFind[c.gid] | filter:findFriendG[c.gid] track by $index " ><a href='#' ng-click="addGroup(c.id,friend._id)"><img ng-src='http://27.254.81.103:7001/90x90/{{friend.picture}}'><div class='span'>{{friend.name}}</div></a></li>
 							</ul>
 						</div>
 
@@ -82,7 +85,7 @@
 															<a href='{{mes.attr.url}}' target='_blank'>{{mes.attr.url}}</a>
 														</div>
 													</div>
-													<span dynamic="mes.content"></span>
+													<span dynamic="urlify(mes.content)"></span>
 												</div>
                         <!-- {{mes.post_time * 1000 | timeAgo}} -->
 
@@ -98,7 +101,7 @@
 														<a href='{{mes.attr.url}}' target='_blank'>{{mes.attr.url}}</a>
 													</div>
 												</div>
-												<span dynamic="mes.content"></span>
+												<span dynamic="urlify(mes.content)"></span>
 											</div>
 											<div class='msg_date'><span dynamic="getTimeAgo(mes.post_time)"></div>
                       <div class='msg_is_read' ng-if="$last"><span dynamic="lastRead[c.gid]"> </div>
