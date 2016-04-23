@@ -71,6 +71,7 @@ module.exports = new function(){
 	// }
 	this.findGroupGetWhere = function(session_id,typegroup,where,callback){
 		Group.find({member:db.ObjectId(session_id),group_type:typegroup}).lean().exec(function(err,group){
+
 			var memberGroup = [];
 			var date_fggw = [];
 			var gid_fggw = [];
@@ -88,7 +89,9 @@ module.exports = new function(){
 
         });
 				if(where == 'shop'){
+					console.log(memberGroup);
 					Shop.find({_id:{$in:memberGroup},shop_status:1}).lean().exec(function(err,resultShop){
+						console.log(resultShop);
 						var shop_fggw = [];
 						resultShop.forEach(function(row_shop){
 							shop_fggw.push({_id:row_shop._id,name:row_shop.shop_name,picture:row_shop.shop_logo});

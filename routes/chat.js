@@ -18,7 +18,9 @@ var uploadGroup = libUpload.uploadGroup();
 router.get('/user/:id', function(req, res, next) {
  	res.render('chat2',{id:req.params.id});
 });
-
+router.get('/emo', function(req, res, next) {
+	res.render('emoticon');
+});
 router.get('/master', function(req, res, next) {
 	res.render('chat3');
 });
@@ -101,35 +103,51 @@ router.post('/readCaht', function(req, res, next) {
     }
   });
 });
+//Group.find({$or{[]} member:db.ObjectId(session_id)}).lean().exec(function(err,resultGroup){
 router.post('/loadNotification', function(req, res, next) {
   var session_id = req.body.session_id;
   var listGroup = [];
   var notification = [];
   var num = 0;
   var i = 0;
-  Group.find({member:db.ObjectId(session_id)}).lean().exec(function(err,resultGroup){
-    resultGroup.forEach(function(g){
-      Group_message.findOne({group_id:g._id,user_id:{$ne:db.ObjectId(session_id)}}).sort({post_time:'-1'}).lean().exec(function(err,resultMessage){
-        if(resultMessage != null){
+  var text = '';
+  Shop.find({user_id:db.ObjectId(session_id)}).lean().exec(function(err,resultShop){
+    var shopList = [];
+    console.log(resultShop);
+    resultShop.forEach(function(shop){
+      shopList.push(shop._id);
+    });
+    Group.find({ $or:[{member:{$in:shopList}},{member:db.ObjectId(session_id)}]  } ).lean().exec(function(err,resultGroup){
 
-          if(!function_t.inArray(session_id,resultMessage.read_list)){
-            resultMessage.status_read = true;
-            notification.push(resultMessage);
-            num++;
-          }else{
-            resultMessage.status_read = false;
-            notification.push(resultMessage);
+      console.log(resultGroup)
+      resultGroup.forEach(function(g){
+        Group_message.findOne({group_id:g._id,user_id:{$ne:db.ObjectId(session_id)}}).sort({post_time:'-1'}).lean().exec(function(err,resultMessage){
+          //console.log(resultMessage);
+          if(resultMessage != null){
+            if(resultMessage.post_type == 'text'){
+              resultMessage.content = entities.decode(resultMessage.content);
+            }else{
+              resultMessage.content = "ส่งรูปภาพ";
+            }
+            if(!function_t.inArray(session_id,resultMessage.read_list)){
+              resultMessage.status_read = true;
+              notification.push(resultMessage);
+              num++;
+            }else{
+              resultMessage.status_read = false;
+              notification.push(resultMessage);
+            }
           }
-        }
-        i++;
-        if(resultGroup.length == i){
-          res.json({num_notification:num,notification:notification});
-        }
+          i++;
+          if(resultGroup.length == i){
 
-
+            res.json({num_notification:num,notification:notification});
+          }
+        });
       });
     });
   });
+
 });
 router.post('/getFriend', function(req, res, next) {
   var session_id = req.body.session_id;
@@ -166,9 +184,9 @@ router.post('/delUserGroup', function(req, res, next) {
   var gid = req.body.gid;
   var newUserGroup = [];
   Group.findOne({_id:db.ObjectId(gid),member:db.ObjectId(user_id)}).lean().exec(function(err,resultGroup){
-    console.log(resultGroup.member.length);
+
     if(resultGroup.member.length > 2){
-      console.log('y');
+
       resultGroup.member.forEach(function(m){
         if(user_id != m){
           newUserGroup.push(db.ObjectId(m));
@@ -180,7 +198,7 @@ router.post('/delUserGroup', function(req, res, next) {
         });
       })
     }else{
-      console.log('x');
+
       Group.find({_id:db.ObjectId(gid)}).remove().exec(function(err,delGroup){
         Group_member.find({ group_id:db.ObjectId(gid)}).remove().exec(function(err,del){
           res.json(del);
@@ -254,9 +272,9 @@ router.post('/addGroup',function(req,res,next){
   var friend_id = req.body.friend_id;
   var user_id = req.body.user_id;
   chat_tool.checkFriendSingle(id,friend_id,function(f){
-    console.log(f);
+
     if(f.status){
-      console.log('what the fuck');
+
       var group = new Group({
         group_name:id+"-"+function_t.getTime(),
         group_type:'g',
@@ -306,7 +324,8 @@ router.post('/findFriend',function(req,res,next){
 router.post('/addActivities',function(req,res,next){
   var user_id = req.body.user_id;
   var session_id = req.body.id;
-  Group.findOne({$and: [ { member:db.ObjectId(session_id) }, { member:db.ObjectId(user_id)}]}).lean().exec(function(err,result){
+  Group.findOne({$and: [ { member:db.ObjectId(session_id) }, { member:db.ObjectId(user_id)}],group_type:'p'}).lean().exec(function(err,result){
+    console.log(result)
     if(result == null){
       group = new Group({
         group_name:null,
@@ -347,6 +366,7 @@ router.post('/sendChatMessage',function(req,res,next){
     var gid = req.body.gid;
     var message = req.body.message;
     var user_id = req.body.user_id;
+    var shop_id = req.body.shop_id;
     var addGroup = new Group_message({
       group_id:db.ObjectId(gid),
       user_id:db.ObjectId(user_id),
@@ -355,7 +375,7 @@ router.post('/sendChatMessage',function(req,res,next){
       read_status:0,
       post_type:'text',
       ip:function_t.getIpv4(req.clientIp),
-      shop_id:'',
+      shop_id:shop_id,
       attr:'',
   });
 
@@ -500,6 +520,7 @@ router.post('/chatActivities',function(req,res,next){
 	var session_id = req.body.id;
 
   Shop.find({user_id:db.ObjectId(session_id)}).lean().exec(function(err,shopUser){
+
     var shoplist_ca = [];
     var shopname_ca = [];
     var shopListId = [];
@@ -510,7 +531,9 @@ router.post('/chatActivities',function(req,res,next){
       checkShop.push(row._id);
       shopname_ca[row._id] = row.shop_name;
     });
+
     Group.find({shop_id:{$in:shoplist_ca},group_type:'p'}).sort({last_update: 'desc'}).lean().exec(function(err,groupShop){
+      //console.log(groupShop)
       var shoplistId_ca = [];
       var id = '';
       if(groupShop.length != 0){
@@ -553,17 +576,22 @@ router.post('/chatActivities',function(req,res,next){
           });
         });
       }else{
+        console.log('casexx')
         chat_tool.findGroupGetWhere(session_id,'p','shop',function(resultShop){
+
           if(resultShop){
+            //console.log(resultShop)
             var shopFinal = [];
             resultShop.data.forEach(function(rsShop){
               var data2 = {_id:rsShop._id,name:rsShop.name,shop_id:rsShop._id,shop_name:rsShop.name,gid:resultShop.group[rsShop._id],picture:rsShop.picture,last_update:resultShop.last_update[rsShop._id],status:'shop'};
               shopFinal.push(data2);
             });
+
             //json_ca = userFinal_ca.concat(shopFinal);
             shopFinal.sort(function(a, b){
               return b.last_update-a.last_update
             });
+
             res.json(shopFinal);
         }
         });

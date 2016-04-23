@@ -1,0 +1,33 @@
+<div class=' boxchatx{{c.gid}} emo-menu emo_arr'>
+	<ul class='emo_title nav-tabs inner_gray'>
+		<span>อารมณ์ {{c.gid}}<i class='icon-angle-right'></i></span>
+		<li class='active'><a href="#moreused{{c.gid}}" aria-controls="moreused" role="tab" data-toggle="tab">ที่ใช้บ่อย</a></li>
+		<li><a href="#emojicon{{c.gid}}"  class="pre_emo" data-gid="{{c.gid}}" aria-controls="emojicon" role="tab" data-toggle="tab">สัญลักษณ์</a></li>
+		<li><a href="#emo_sticker{{c.gid}}" aria-controls="emo_sticker" role="tab" data-toggle="tab">สติ๊กเกอร์</a></li>
+		<a href="#" class="emo-menu_close autocloseemo{{c.gid}}" role="button" data-gid="{{c.gid}}" title="Close">&times;</a>
+	</ul>
+	<div class='response_emo tab-content'>
+		<div id='moreused{{c.gid}}' class='tab-pane active' role="tabpanel">
+		     <ul id='read_moreusedcm{{c.gid}}' class='emoticons' style='font-size:16px;'></ul>
+		</div>
+		<div id="emojicon{{c.gid}}" class='tab-pane' role="tabpanel">
+			<div class='repo'>
+			    <ul class='xrepo emoticonscm repo_jsoncm{{c.gid}}' style='font-size:16px;'></ul>
+			</div>
+
+			<div class='emo_menu'>
+				<ul id="category-filters" class="category-filters {{c.gid}}" data-active='people'>
+                <li><a id="filter-people" data-category="people" data-act='{{c.gid}}' href="#" class="active" title="People"><i class="icon-people"></i></a></li>
+                <li><a id="filter-nature" data-category="nature" data-act='{{c.gid}}' href="#" title="Nature"><i class="icon-nature"></i></a></li>
+                <li><a id="filter-food_drink" data-category="foods" data-act='{{c.gid}}' href="#" title="Food and drink"><i class="icon-food"></i></a></li>
+                <li><a id="filter-celebration" data-category="objects" data-act='{{c.gid}}' href="#" title="Celebration"><i class="icon-celebration"></i></a></li>
+                <li><a id="filter-activity" data-category="activity" data-act='{{c.gid}}' href="#" title="Activity"><i class="icon-activity"></i></a></li>
+                <li><a id="filter-travel_places" data-category="travel" data-act='{{c.gid}}' href="#" title="Travel and places"><i class="icon-travel"></i></a></li>
+                <li><a id="filter-flags" data-category="flags" href="#" data-act='{{c.gid}}' title="Flags"><i class="icon-flags"></i></a></li>
+                <li><a id="filter-objects_symbols" data-category="symbols" data-act='{{c.gid}}' href="#" title="Objects and symbols"><i class="icon-objects"></i></a></li>
+        </ul>
+			</div>
+		</div>
+		<div id='emo_sticker{{c.gid}}' class='tab-pane' role="tabpanel">emo_sticker</div>
+	</div>
+</div>

@@ -15,6 +15,87 @@ app.directive('onFinishRender', function ($timeout) {
         }
     }
 });
+app.directive('contenteditable', function() {
+    return {
+      restrict: 'A', // only activate on element attribute
+      require: '?ngModel', // get a hold of NgModelController
+      link: function(scope, element, attrs, ngModel) {
+        if(!ngModel) return; // do nothing if no ng-model
+
+        // Specify how UI should be updated
+        ngModel.$render = function() {
+          element.html(ngModel.$viewValue || '');
+        };
+
+        // Listen for change events to enable binding
+        element.on('blur keyup change', function() {
+          scope.$apply(read);
+        });
+        read(); // initialize
+
+        // Write data to the model
+        function read() {
+          var html = element.html();
+          ngModel.$setViewValue(html);
+        }
+      }
+    };
+  });
+// app.directive('contenteditable', function() {
+//   return {
+//     require: 'ngModel',
+//     restrict: 'A',
+//     link: function(scope, elm, attr, ngModel) {
+//
+//       function updateViewValue() {
+//         ngModel.$setViewValue(this.innerHTML);
+//       }
+//
+//       //Or bind it to any other events
+//       elm.on('keyup', updateViewValue);
+//
+//       scope.$on('$destroy', function() {
+//         elm.off('keyup', updateViewValue);
+//       });
+//
+//       ngModel.$render = function() {
+//         elm.html(ngModel.$viewValue);
+//       }
+//
+//     }
+//   }
+// });
+app.directive('safePaste', [function() {
+	 var specialCharacters = ["–", "’"],
+    normalCharacters = ["-", "'"]
+    function replaceInvalidCharacters (string) {
+      var regEx;
+      for (var x = 0; x < specialCharacters.length; x++) {
+        regEx = new RegExp(specialCharacters[x], 'g');
+        string = string.replace(regEx, normalCharacters[x]);
+      }
+      return string;
+    }
+    function handlePaste (event) {
+      event.preventDefault();
+      var plainText = (event.originalEvent || event).clipboardData.getData('text/plain');
+      //var plainText = event.clipboardData.getData('text/plain');
+      var cleanText = replaceInvalidCharacters(plainText);
+      document.execCommand('inserttext', false, cleanText);
+      return false;
+    }
+    var declaration = {};
+    declaration.restrict = 'A';
+    declaration.link = function(scope, element, attr) {
+      element.on('paste', handlePaste);
+      scope.$on('$destroy', function() {
+				element.off('paste', handlePaste);
+			});
+		};
+    return declaration;
+	}
+]);
+
 app.directive('schrollBottom', function () {
     return {
       scope: {
@@ -75,7 +156,7 @@ app.directive('dynamic', function ($compile) {
   };
 });
 
-app.controller('chat', function($scope,$http,$compile,$window,$interval) {
+app.controller('chat', function($scope,$http,$compile,$window,$interval,$timeout) {
 
 
   $scope.site = 'http://192.168.0.25:3000';
@@ -139,10 +220,8 @@ $.each($scope.list_group, function( index, value ) {
     }
   });
 $.each($scope.list, function( index, list ) {
-    console.log(data)
-    console.log(list);
+
     if(list.gid == data.gid && session_id != data.ids){
-      console.log('123123hhhhh');
       count = 0;
       clearInterval(timer_server);
       timer_server = setInterval(function(){
@@ -185,6 +264,48 @@ $.each($scope.list, function( index, list ) {
 })
 
 });
+// $scope.pre_emo = function(gid){
+//
+//   //console.log(gid)
+//   //var id = $(this).data('set');
+//   //var gid = $(this).data('gid');
+//   var id = 'chat_with_me';
+//   var active = $('.emo_menu .'+id).data('active');
+// //  var active = $('.emo_menu').data('active');
+//   console.log(active);
+//   var check_stemo = $('.repo_jsoncm'+id).html()
+//   //var check_stemo = document.getElementById('repo_jsoncm'+id).innerHTML;
+//   if(check_stemo.length > 0){
+//     convert();
+//   }else{
+//     var jqxhr = $.getJSON("/js/emoji.json", function() {
+//       var group = jqxhr.responseJSON;
+//
+//       for(var k in group) {
+//          if(group[k].category == active){
+//            //$scope.emo_icon[gid].push(group[k].shortname);
+//            $('.repo_jsoncm'+id).append("<li class='emo_list' data-target='"+id+"'>"+group[k].shortname+"</li>");
+//          }
+//       }
+//       convert();
+//     });
+//   }
+//
+//   function convert() {
+//       var input = $('.repo_jsoncm'+id).html()
+//       var output = emojione.shortnameToImage(input);
+//     //  $scope.emo_icon[gid] = output;
+//       console.log(gid);
+//       $scope.emo_icon[gid] = output;
+//       console.log($scope.emo_icon[gid]);
+//
+//       $('.repo_jsoncm'+id).html(output)
+//   }
+// }
+// $(document).on('click','.pre_emo',function(){
+//
+//
+// });
 //setTimeout(loadListChat, 2000);
 function loadPopup(){
   $('.gal').each(function() {
@@ -440,12 +561,13 @@ function urlify(text) {
     })
 }
 
-$scope.sendChatMessage = function(gid,id,picture){
+$scope.sendChatMessage = function(gid,id,shop_id){
+
   if(!gid){
     gid = id;
     //id = session_id;
   }
-
+  console.log($scope.message[gid]);
   if(!$scope.message[gid]){
     $scope.message_check[gid] = true;
   }else{
@@ -453,9 +575,15 @@ $scope.sendChatMessage = function(gid,id,picture){
 
     $http({
       method: 'POST',
-      data:{gid:gid,user_id:session_id,message:$scope.message[gid]},
+      data:{gid:gid,user_id:session_id,shop_id:shop_id,message:$scope.message[gid]},
       url: '/chat/sendChatMessage'
     }).then(function successCallback(response) {
+
+      $timeout(function() {
+        $('.autocloseemo'+gid).trigger( "click" );
+        //angular.element('.autocloseemo'+gid).triggerHandler('click');
+      })
+
       $scope.lastRead[gid] = '';
       $scope.message[gid] = '';
       response.data.chat.picture = response.data.picture;
@@ -485,10 +613,9 @@ $scope.getTimeAgo = function(date){
 }
 function updateChat1(gid,chatMessage){
   //chatMessage.content = urlify(chatMessage.content)
-  console.log(chatMessage.content);
-  console.log('123123123aaaaaa')
+
     if($scope.data_chat){
-      console.log('123123123xxxxx')
+
       $.each($scope.data_chat,function(index,data){
         if(data.gid == gid){
           $scope.data_chat[index].chat.push(chatMessage);
@@ -598,9 +725,15 @@ $scope.checkRead = function(gid){
   //}
 
 }
-
+//$scope.$watch('message[id]', focusInput);
+// $scope.$apply(function() {
+//    // every changes goes here
+//    var html = $("#message571894f63489acb305dca5b0").html()
+//    $('#message571894f63489acb305dca5b0').html(html);
+// });
 $scope.focusInput = function(id){
-
+  console.log('xx')
+  console.log($scope.message[id]);
   if($scope.message[id]){
     socket.emit('MessageLoad', {gid:id,user_id:session_id,fucus:true});
   }else{
@@ -611,12 +744,17 @@ $scope.pasteHtml = function(e,id){
   //$('[contenteditable]').on('paste',function(e) {
     e.preventDefault();
     var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-    $scope.message[id] = text;
+
+
+    //  $(e.target).children('style').remove();
+    //  console.log(e.target);
+  //  $scope.message[id] = text;
     //$('[contenteditable]').html(text);
 
 }
 function loadNotification(){
   http_post('/chat/loadNotification',{session_id:session_id},function(data){
+
     $scope.notification = data.num_notification;
     $scope.listNotification = data.notification;
   });
@@ -679,7 +817,7 @@ function loadListChat(id){
   });
   }
 var length = []
-$scope.register_popup = function(id,user_id,name,picture,type,status,shop){
+$scope.register_popup = function(id,user_id,name,picture,type,status,shop,shop_id){
     //$scope.checkRead(id);
     for(var iii = 0; iii < popups.length; iii++){
       if(id == popups[iii]){
@@ -723,14 +861,14 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
             if(id == null){
               addActivities(session_id,user_id,function(result){
 
-                chat = {gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,type:type}
+                chat = {gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,shop_id:shop_id,type:type}
                 addPop(result.data._id+'');
                 insert_array(result.data._id,chat);
                 loadListChat(session_id);
               });
             }else{
               addPop(id);
-              chat = {gid:id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,type:type}
+              chat = {gid:id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,shop_id:shop_id,type:type}
 
               insert_array(id,chat);
 
@@ -739,7 +877,7 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
           }else{
             if(id == null){
               addActivities(session_id,user_id,function(result){
-                chat = [{gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,type:type}];
+                chat = [{gid:result.data._id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,shop_id:shop_id,type:type}];
                 id = result.data._id;
                 addPop(id+'');
                 $scope.data_chat = chat;
@@ -754,7 +892,7 @@ $scope.register_popup = function(id,user_id,name,picture,type,status,shop){
 
             }else{
               addPop(id+'');
-              chat = [{gid:id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,type:type}]
+              chat = [{gid:id,id:user_id,name:name,picture:picture,chat:messageChat,status:status_list,shop_text:shop_text,shop_id:shop_id,type:type}]
               $scope.data_chat = chat;
 
               $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {

@@ -9,7 +9,7 @@
      <link href="/stylesheets/normalize.css" rel="stylesheet">
     <link href="/stylesheets/page.css" rel="stylesheet">
     <link href="/stylesheets/chat.css" rel="stylesheet">
-
+      <link href="/stylesheets/emojione.min.css" rel="stylesheet">
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link href="/stylesheets/magnific-popup.css" rel="stylesheet">
@@ -27,7 +27,7 @@
           {{xxx()}}
         Nav_notification:{{notification}}
         <ul>
-          <li ng-repeat="n in listNotification" ng-click="checkRead(n.group_id)">{{n.content}} status_read:{{n.status_read}}</li>
+          <li ng-repeat="n in listNotification" ng-click="checkRead(n.group_id)"><div dynamic="n.content"></div><span ng-if="!n.status_read">อ่านแล้ว</span></li>
         </ul>
         <div class="list" >
         <div ng-init = "message = []">
@@ -35,32 +35,33 @@
         <div ng-init = "message_check = []">
         <div ng-init = "friendFind = []">
         <div ng-init = "lastRead = []">
-				<div class='popup-box chat-popup' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.gid}}">
+        <div ng-init="emo_icon = []">
+				<div class='popup-box chat-popup pop{{c.gid}}' ng-repeat='c in data_chat track by $index' on-finish-render="ngRepeatFinished" id="{{c.gid}}" >
 
-				<header></header>
+				<header data-gid="{{c.gid}}"></header>
 
-        <div class='name_head'><div class='name'>{{c.name}}</div>
+        <div class='name_head poparea{{c.gid}}'><div class='name'>{{c.name}}</div>
           <button  class='chat-popup-xc autocloseid{{c.gid}}' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button></div>
-          <button  class='chat-popup-cc ' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button>
-					<button ng-if="c.type == 'g'"  class='chat-popup-cc posrel dd_cog'><i class="fa fa-cog"></i>
+          <button  class='chat-popup-cc poparea{{c.gid}}' ng-click="close_popup(c.gid)"><i class="fa fa-times"></i></button>
+					<button ng-if="c.type == 'g'"  class='chat-popup-cc poparea{{c.gid}} posrel dd_cog' data-gid="{{c.gid}}"><i class="fa fa-cog"></i>
             <!--  -->
-					    <ul class='setting_list'>
+					    <ul class='setting_list isopen_setting{{c.gid}}'>
 						    <li><a href='javascript:void(0);' ng-click="addFriendToGroup(c.gid)" class='plus_friend'>เพิ่มเพื่อน</a></li>
 						    <li ><a href='javascript:void(0);' ng-click="getSetting(c.gid)" class="show-group-setting">แก้ไขชื่อการสนทนา</a></li>
 						    <li><a href='javascript:void(0);' ng-click="getFriend(c.gid)" class="show-friend-ingroup">แก้ไขผู้มีส่วนร่วม</a></li>
 					    </ul>
 					</button>
-					<button ng-if="c.type == 'p'" class='chat-popup-cc plus_friend' data-id="{{c.gid}}"><i class="fa fa-user-plus"></i></button>
-					<div class='ichatwith'>
+					<button ng-if="c.type == 'p'" class='chat-popup-cc poparea{{c.gid}} plus_friend' data-id="{{c.gid}}"><i class="fa fa-user-plus"></i></button>
+					<div class='ichatwith poparea{{c.gid}}'>
 						<div class='inchat'>
 							<div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{c.picture}}'></div>
-							<div class='inchat-detail'>
+							<div class='inchat-detail poparea{{c.gid}}'>
 								<div class='hername'><a href='#'>{{c.name}} </a>{{c.shop_text}}</div>
 							</div>
 						</div>
 					</div>
 
-					<div class='chatarea' >
+					<div class='chatarea poparea{{c.gid}}'  >
             <div class='evt_res ' ng-if="message_check[c.gid]">Message Empty</div>
 						<div class='find_frined findFriend{{c.gid}}'>
 							<input type='text' class='input_friend'  ng-model="findFriendG[c.gid]" ng-keyup="findFriend(c.gid)"  placeholder="ค้นหาเพื่อน">
@@ -144,7 +145,7 @@
 
 					</div>
 
-					<div class='chat_form'>
+					<div class='chat_form poparea{{c.gid}}'>
 
 						<div class='chat_text_cv'>
               <!-- <div class='chat_text_input'  contenteditable="true" ng-model="message" data-placeholder='พิมพ์ข้อความ...'></div> -->
@@ -152,21 +153,66 @@
 
                   <!-- <div class='chat_text_input' contenteditable="true" ng-model="message[c.id]"  ng-paste="pasteHtml($event,c.gid)" enter-submit="sendChatMessage(c.gid,c.id)"  data-placeholder='พิมพ์ข้อความ...'></div> -->
 
-                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.gid]" ng-paste="pasteHtml($event,c.gid)"  ng-keyup="focusInput(c.gid)" ng-focus="checkRead(c.gid)"  enter-submit="sendChatMessage(c.gid,c.id)"   data-placeholder='พิมพ์ข้อความ...' ></div>
+                <div class='chat_text_input '  contenteditable="true" ng-model="message[c.gid]" safe-paste  ng-keyup="focusInput(c.gid)" ng-focus="checkRead(c.gid)"  enter-submit="sendChatMessage(c.gid,c.id)"  id="message{{c.gid}}"  data-placeholder='พิมพ์ข้อความ...' ></div>
 
             </div>
 					</div>
 
-					<div class='chat_control'>
-						<button class='box_ctrl upphoto' ng-click="sendChatPhoto(c.gid,c.id)"><i class="fa fa-camera-retro"></i></button>
+					<div class='chat_control poparea{{c.gid}}'>
+						<button class='box_ctrl upphoto' ng-click="sendChatPhoto(c.gid,c.id,c.shop_id)"><i class="fa fa-camera-retro"></i></button>
+<!--
 						<div class='dropup_emo'>
-						<button class='box_ctrl emoj dropup-opener'><i class="fa fa-smile-o"></i></button>
+						<div class='box_ctrl emoj dropup-opener  container{{c.gid}}' data-target='message{{c.gid}}' data-gid="{{c.gid}}" >
+			                <i class="fa fa-smile-o"></i>
+							<div ng-include="'/chat/emo'"></div>
+			      		</div>
+
 							<div class="emo-menu emo_arr">
 								<div class='inner_gray'>อารมณ์ <a href="#" class="emo-menu_close" role="button" title="Close">&times;</a></div>
 							</div>
 						</div>
+-->
+						<div class='dropup_emo'>
+						    <button class='box_ctrl emoj{{c.gid}} dropup-opener_emo-menu '  data-gid='{{c.gid}}'><i class="fa fa-smile-o"></i></button>
+                <div ng-include src="'/chat/emo'" ></div>
+
+							<!-- <div class=' boxchatx{{c.gid}} emo-menu emo_arr'>
+								<ul class='emo_title nav-tabs inner_gray'>
+									<span>อารมณ์<i class='icon-angle-right'></i></span>
+									<li class='active'><a href="#moreused{{c.gid}}" aria-controls="moreused" role="tab" data-toggle="tab">ที่ใช้บ่อย</a></li>
+									<li><a href="#emojicon{{c.gid}}"  class="pre_emo" data-gid="{{c.gid}}" aria-controls="emojicon" role="tab" data-toggle="tab">สัญลักษณ์</a></li>
+									<li><a href="#emo_sticker{{c.gid}}" aria-controls="emo_sticker" role="tab" data-toggle="tab">สติ๊กเกอร์</a></li>
+									<a href="#" class="emo-menu_close" role="button" data-gid="{{c.gid}}" title="Close">&times;</a>
+								</ul>
+								<div class='response_emo tab-content'>
+									<div id='moreused{{c.gid}}' class='tab-pane active' role="tabpanel">
+									     <ul id='read_moreusedcm{{c.gid}}' class='emoticons' style='font-size:16px;'></ul>
+									</div>
+									<div id="emojicon{{c.gid}}" class='tab-pane' role="tabpanel">
+										<div class='repo'>
+										    <ul class='xrepo repo_jsoncm{{c.gid}}' style='font-size:16px;'></ul>
+										</div>
+
+										<div class='emo_menu'>
+											<ul id="category-filters" class="category-filters {{c.gid}}" data-active='people'>
+							                <li><a id="filter-people" data-category="people" data-act='{{c.gid}}' href="#" class="active" title="People"><i class="icon-people"></i></a></li>
+							                <li><a id="filter-nature" data-category="nature" data-act='{{c.gid}}' href="#" title="Nature"><i class="icon-nature"></i></a></li>
+							                <li><a id="filter-food_drink" data-category="foods" data-act='{{c.gid}}' href="#" title="Food and drink"><i class="icon-food"></i></a></li>
+							                <li><a id="filter-celebration" data-category="objects" data-act='{{c.gid}}' href="#" title="Celebration"><i class="icon-celebration"></i></a></li>
+							                <li><a id="filter-activity" data-category="activity" data-act='{{c.gid}}' href="#" title="Activity"><i class="icon-activity"></i></a></li>
+							                <li><a id="filter-travel_places" data-category="travel" data-act='{{c.gid}}' href="#" title="Travel and places"><i class="icon-travel"></i></a></li>
+							                <li><a id="filter-flags" data-category="flags" href="#" data-act='{{c.gid}}' title="Flags"><i class="icon-flags"></i></a></li>
+							                <li><a id="filter-objects_symbols" data-category="symbols" data-act='{{c.gid}}' href="#" title="Objects and symbols"><i class="icon-objects"></i></a></li>
+							        </ul>
+										</div>
+									</div>
+									<div id='emo_sticker{{c.gid}}' class='tab-pane' role="tabpanel">emo_sticker</div>
+								</div>
+							</div> -->
+
+						</div>
 						<div class='dropup_stk'>
-							<button class='box_ctrl right stk dropup-opener'><i class="fa fa-heart"></i></button>
+							<button class='box_ctrl right stk dropup-opener_ddx'><i class="fa fa-heart"></i></button>
 							<ul class="ddx-menu menu_arr">
 								<li><a href="#">B</a></li>
 					            <li><a href="#">S</a></li>
@@ -194,7 +240,8 @@
 		  <li>Emoticon ......... DONE</li>
 		  <li>Quick Emoticon ......... DONE</li>
 	  </ul>
-
+    {{testx}}
+    <input type="text" ng-model="testx" id="message1571894f63489acb305dca5b0">
 	    <div class="chat-sidebar">
             <div class="sidebar-name" ng-repeat="f in list track by $index">
                 <!-- Pass username and display name to register popup -->
@@ -257,7 +304,7 @@
             <ul class='thisismyfriend'>
 	            <li ng-repeat="a in activities | filter:activity track by $index">
 
-                <a href='#' class="autoclickid{{a.gid}}" ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p',a.status,a.shop_name)">
+                <a href='#' class="autoclickid{{a.gid}}" ng-click="register_popup(a.gid,a._id,a.name,a.picture,'p',a.status,a.shop_name,a.shop_id)">
 			            <div class='av'><img ng-src='http://27.254.81.103:7001/90x90/{{a.picture}}'></div>
 			            <div class='fordetail'>
 
@@ -328,48 +375,249 @@
 <!-- <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script> -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/chat.js"></script>
+<script src="/js/emojione.min.js"></script>
+<script src="/js/bz.min.js"></script>
  <!-- <script src="/js/dropzone.js"></script> -->
 <!-- <script src="/js/dropzone.js"></script> -->
-<script>
 
-</script>
 
     <script>
 
     // $(document).ready(function(){$('.msgsc').scrollTop($('.msgsc')[0].scrollHeight);});
-	   $('.dropup_stk').on('click', '> .dropup-opener', function(e) {
+	   // .dropup
+			$(document).on('click', '.dropup-opener_ddx', function(e) {
 			    e.preventDefault();
+			    var id = $(this).data('gid');
 			    	$menu = $(this).siblings('.ddx-menu');
-				    if ($menu.hasClass('is-open')) {
-				      $menu.removeClass('is-open');
+				    if ($menu.hasClass('is-openx')) {
+				      $menu.removeClass('is-openx');
 				      $('.stk').html('<i class="fa fa-heart"></i>');
 				    } else {
-				      $menu.addClass('is-open');
+				      $menu.addClass('is-openx');
 				      $('.stk').html('<i class="fa fa-times"></i>');
 				    }
 			});
-			$('.dropup_emo').on('click', '> .dropup-opener', function(e) {
+			$(document).on('click', '.dropup-opener_emo-menu', function(e) {
+
 			    e.preventDefault();
-			    	$menu = $(this).siblings('.emo-menu');
-				    if ($menu.hasClass('is-open')) {
-				      $menu.removeClass('is-open');
-				      $('.emoj').html('<i class="fa fa-smile-o"></i>');
+			    var id = $(this).data('gid');
+			    	$menu = $(this).siblings('.boxchatx'+id);
+            console.log($menu);
+				    if ($('.boxchatx'+id).hasClass('is-openx')) {
+              console.log('1')
+				      $menu.removeClass('is-openx');
+				      $('.emoj'+id).html('<i class="fa fa-smile-o"></i>');
+              $('.boxchatx'+id).removeClass('is-openx');
 				    } else {
-				      $menu.addClass('is-open');
-				      $('.emoj').html('<i class="fa fa-times"></i>');
+              console.log('2')
+				      $menu.addClass('is-openx');
+              $('.boxchatx'+id).addClass('is-openx');
+              console.log($menu)
+				      $('.emoj'+id).html('<i class="fa fa-times"></i>');
 				    }
 			});
 			$(document).on('click', '.emo-menu_close', function(e) {
+        console.log('123123');
 				e.preventDefault();
-
-				    if ($('.emo-menu').hasClass('is-open')) {
-				      $('.emo-menu').removeClass('is-open');
-				      $('.emoj').html('<i class="fa fa-smile-o"></i>');
-				    } else {
-				      $('.emo-menu').addClass('is-open');
-				      $('.emoj').html('<i class="fa fa-times"></i>');
-				    }
+        var id = $(this).data('gid');
+				if ($('.boxchatx'+id).hasClass('is-openx')) {
+				      $('.boxchatx'+id).removeClass('is-openx');
+				      $('.emoj'+id).html('<i class="fa fa-smile-o"></i>');
+				} //else {
+				//       $('.boxchatx'+id).addClass('is-openx');
+				//       $('.emoj'+id).html('<i class="fa fa-times"></i>');
+				// }
 			});
+
+			$('.emo_title li a').click(function (e) {
+			  e.preventDefault()
+			  $(this).tab('show');
+			});
+
+			$(document).on('click','.dropup-opener',function(){
+		    var id = $(this).data('gid')
+        var read_used = id;
+		    var my_emoInfo = JSON.parse(localStorage.getItem('my_emoInfo'));
+			if(my_emoInfo !=null){
+				var check_emo = document.getElementById('read_moreusedcm'+read_used).innerHTML;
+				if(check_emo.length > 0){
+					var input = document.getElementById('read_moreusedcm'+read_used).innerHTML;
+					var output = emojione.shortnameToImage(input);
+					document.getElementById('read_moreusedcm'+read_used).innerHTML = output;
+				}else{
+					for(var k in my_emoInfo) {
+				        $('#read_moreusedcm'+read_used).append("<li class='emo_list' data-target='"+read_used+"'>"+my_emoInfo[k].myEmo+"</li>");
+					}
+			        var input = document.getElementById('read_moreusedcm'+read_used).innerHTML;
+					var output = emojione.shortnameToImage(input);
+					document.getElementById('read_moreusedcm'+read_used).innerHTML = output;
+				}
+			}else{
+				$('#read_moreusedcm'+read_used).append("<li class='emo_list text-center' style='width:100%; padding:30px 0;'>คุณยังไม่เคยใช้ icon สื่ออารมณ์</li>");
+			}
+		});
+
+		$(document).on('click','.pre_emo',function(){
+
+			//var id = $(this).data('set');
+      var id = $(this).data('gid');
+      //var id = 'chat_with_me';
+			var active = $('.emo_menu .'+id).data('active');
+    //  var active = $('.emo_menu').data('active');
+      console.log(active);
+      var check_stemo = $('.repo_jsoncm'+id).html()
+			//var check_stemo = document.getElementById('repo_jsoncm'+id).innerHTML;
+			if(check_stemo.length > 0){
+				convert();
+			}else{
+				var jqxhr = $.getJSON("/js/emoji.json", function() {
+					var group = jqxhr.responseJSON;
+
+					for(var k in group) {
+					   if(group[k].category == active){
+						   $('.repo_jsoncm'+id).append("<li class='emo_list' data-target='"+id+"'>"+group[k].shortname+"</li>");
+					   }
+					}
+					convert();
+				});
+			}
+
+			function convert() {
+			    var input = $('.repo_jsoncm'+id).html()
+			    var output = emojione.shortnameToImage(input);
+			    $('.repo_jsoncm'+id).html(output)
+			}
+		});
+
+	$(document).on('click','.category-filters li a',function(){
+		  var filter = $(this).data('category');
+		  var act = $(this).data('act');
+		  $(this).removeClass('active');
+		  $('.repo_jsoncm'+act).empty();
+
+	    var jqxhr = $.getJSON( "/js/emoji.json", function() {
+			var group = jqxhr.responseJSON;
+
+			for(var k in group) {
+			   if(group[k].category == filter){
+				   $('.repo_jsoncm'+act).append("<li class='emo_list' data-target='"+act+"'>"+group[k].shortname+"</li>");
+			   }
+			}
+			convert();
+	    });
+		function convert() {
+		    //var input = document.getElementsByClassName('repo_jsoncm'+act).innerHTML;
+        var input = $('.repo_jsoncm'+act).html();
+		    var output = emojione.shortnameToImage(input);
+        $('.repo_jsoncm'+act).html(output);
+		    //document.getElementsByClassName('repo_jsoncm'+act).innerHTML = output;
+		}
+	});
+
+	$(document).on('click','.emoticonscm li',function() {
+	    var smiley = $(this).find('img').attr('title');
+	    var target = $(this).data('target');
+      console.log(smiley);
+
+	    $("#message"+target).append(smiley);
+
+	    var original = $("#message"+target).html();
+	    var converted = emojione.shortnameToImage(original);
+
+	    $("#message"+target).html(converted);
+      $("#message1"+target).val('123');
+      console.log($("#message1"+target).val())
+	     var emo_data = JSON.parse(localStorage.getItem('my_emoInfo'));
+			if(emo_data == null){
+				add_emo(smiley);
+			}
+			else if(emo_data.length < 16){
+
+				add_emo(smiley);
+			}else{
+				emo_data.shift();
+				localStorage.removeItem('my_emoInfo');
+				add_new_emo(emo_data);
+				add_emo(smiley);
+			}
+
+      //$("#message"+target).change();
+      $("#message"+target).change();
+	    setCursor(converted, converted.length);
+	});
+
+
+	function setCursor(elem, pos) {
+	    if (elem.setSelectionRange) {
+	      elem.focus();
+	      elem.setSelectionRange(pos, pos);
+	    } else if (elem.createTextRange) {
+	      var range = elem.createTextRange();
+	      range.collapse(true);
+	      range.moveEnd('character', pos);
+	      range.moveStart('character', pos);
+	      range.select();
+	    }
+	}
+
+	function get_detail(){
+		var ge = $('#editor').html();
+		$('#detail2').val(ge);
+	};
+
+    function cm_detail(req){
+	    var val = $('#'+req).html();
+        $('#comment_'+req).val(val);
+    }
+
+    function subcm_detail(req){
+	    var val = $('#'+req).html();
+        $('#subcomment_'+req).val(val);
+    }
+
+    function SaveDataToLocalStorage(new_emo){
+		var emoji_bz =[];
+			emoji_bz = JSON.parse(localStorage.getItem('my_emoInfo') || []);
+			emoji_bz.push({myEmo:new_emo});
+			localStorage.setItem('my_emoInfo', JSON.stringify(emoji_bz));
+		}
+
+    function add_emo(new_emo){
+
+		var status = 0;
+			var check_str = localStorage.getItem('my_emoInfo');
+			var emo_data = JSON.parse(localStorage.getItem('my_emoInfo'));
+			if(check_str != null){
+				for(var u in emo_data) {
+
+					if(new_emo == emo_data[u].myEmo){
+						status = 1;
+					}
+				}
+				if(status == 0){
+					SaveDataToLocalStorage(new_emo);
+				}
+
+/*
+				function SaveDataToLocalStorage(new_emo){
+
+					var emoji_bz =[];
+					    emoji_bz = JSON.parse(localStorage.getItem('my_emoInfo') || []);
+					    emoji_bz.push({myEmo:new_emo});
+					    localStorage.setItem('my_emoInfo', JSON.stringify(emoji_bz));
+				}
+*/
+
+
+			}else{
+				var emoji_bz = [];
+				emoji_bz.push({myEmo:new_emo});
+				localStorage.setItem('my_emoInfo', JSON.stringify(emoji_bz));
+			}
+	};
+	function add_new_emo(data){
+		localStorage.setItem('my_emoInfo', JSON.stringify(data));
+	}
 
 			// $(document).on('click','.show-friend-ingroup',function() {
       //
@@ -486,7 +734,9 @@
 
 
 	        $(document).on('click','.dd_cog', function(){
-		        $('.setting_list').slideToggle('fast');
+            var gid = $(this).data('gid');
+
+		        $('.isopen_setting'+gid).slideToggle('fast');
 	        });
 	        $(".setting_list > li > a").click(function () {
 		        //Toggle the child but don't include them in the hide selector using .not()
@@ -521,30 +771,31 @@
 
 
 	    $(document).on('click','.chat-popup header',function(e) {
+      var gid = $(this).data('gid');
 			e.preventDefault();
-			var chat_popup = $('.chat-popup');
+			var chat_popup = $('.pop'+gid);
 
 			if (chat_popup.hasClass('hide')) {
                 chat_popup.removeClass('hide');
-	                $('.chatarea').slideToggle(300);
-					$('.chat_form').css('display','block');
-					$('.chat_control').slideToggle(300);
-					$('.chat-popup-cc').slideToggle(300);
-					$('.inchat-detail').slideToggle(300);
-					$('.ichatwith').slideToggle(300);
-					$('.name_head').css('display','none');
-					$('.chat-popup').css('width','320px');
+	                $('.chatarea.poparea'+gid).slideToggle(300);
+					$('.chat_form.poparea'+gid).css('display','block');
+					$('.chat_control.poparea'+gid).slideToggle(300);
+					$('.chat-popup-cc.poparea'+gid).slideToggle(300);
+					$('.inchat-detail.poparea'+gid).slideToggle(300);
+					$('.ichatwith.poparea'+gid).slideToggle(300);
+					$('.name_head.poparea'+gid).css('display','none');
+					$('.pop'+gid).css('width','320px');
 					$(this).css('cursor','s-resize');
 		    } else {
 		        chat_popup.addClass('hide');
-		            $('.chatarea').slideToggle('fast');
-					$('.chat_form').css('display','none');
-					$('.chat_control').slideToggle('fast');
-					$('.chat-popup-cc').slideToggle('fast');
-					$('.inchat-detail').slideToggle('fast');
-					$('.ichatwith').slideToggle(300);
-					$('.name_head').css('display','block');
-					$('.chat-popup').css('width','140px');
+		            $('.chatarea.poparea'+gid).slideToggle('fast');
+					$('.chat_form.poparea'+gid).css('display','none');
+					$('.chat_control.poparea'+gid).slideToggle('fast');
+					$('.chat-popup-cc.poparea'+gid).slideToggle('fast');
+					$('.inchat-detail.poparea'+gid).slideToggle('fast');
+					$('.ichatwith.poparea'+gid).slideToggle(300);
+					$('.name_head.poparea'+gid).css('display','block');
+					$('.pop'+gid).css({'width':'140px'});
 					$(this).css('cursor','n-resize');
 		    }
 
